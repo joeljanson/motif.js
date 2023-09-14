@@ -45,7 +45,7 @@ class MidiHandler {
 				const inRangeNote = note < 1 ? 1 : note > 127 ? 127 : note;
 				WebMidi.outputs[this._output].channels[1].playNote(inRangeNote, {
 					time: "+" + midiInfo.time * 1000,
-					duration: midiInfo.duration * 1000 * (120 / Transport.bpm.value),
+					duration: midiInfo.duration * 1000, //* (120 / Transport.bpm.value),
 					attack: midiInfo.velocity,
 				});
 			} else if (typeof note === "string" && note === ".") {

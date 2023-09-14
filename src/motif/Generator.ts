@@ -7,11 +7,36 @@ const twoBeats = [
 	["4n", "2n."],
 ];
 
+const possible: Record<string, Array<Array<string>>> = {
+	"4n": [
+		["8n", "8n"],
+		["8n.", "16n"],
+		["8n", "16n", "16n"],
+		["16n", "16n", "16n", "16n"],
+	],
+	"1m": [["8n", "8n"]],
+};
+
 class Generator {
 	constructor() {
 		console.log("Generator was constructed.");
 	}
 
+	static fill(notevalue: string, numberOfBeats: number = 1) {
+		const combinedCombinations = [];
+		for (let i = 0; i < numberOfBeats; i++) {
+			const possibleNoteCombinations = possible[notevalue];
+			// Generate a random index to select one of the arrays
+			const randomIndex = Math.floor(
+				Math.random() * possibleNoteCombinations.length
+			);
+
+			// Return the selected array
+			combinedCombinations.push(possibleNoteCombinations[randomIndex]);
+		}
+		return combinedCombinations.flat();
+	}
+	/* 
 	splitValue(value: number, parts: number, isSimple: boolean = true): number[] {
 		let combinations: number[][] = [];
 
@@ -113,6 +138,6 @@ class Generator {
 		return fullRythm.flat();
 		// const timeForOneSpace = Time(fitInto).toSeconds() / numberOfNotes;
 		// console.log(this.getPossibleRythmValues(1, "2n"));
-	}
+	} */
 }
 export default Generator;

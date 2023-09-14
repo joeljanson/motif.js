@@ -1,7 +1,7 @@
 import { Time } from "tone";
 import { Frequency, Part, Transport, now } from "tone";
 import MidiHandler from "../midi-handling/MidiHandler";
-import Generator from "./Generator";
+import Generator from "../motif/Generator";
 
 type RythmicMotif = {
 	time: number;
@@ -125,7 +125,7 @@ class Rhythm {
 	addGeneratedRythm(numberOfNotes: number) {
 		const generator = new Generator();
 		//generator.generateRythm(numberOfNotes)
-		this.addRythm(generator.generateRythm(numberOfNotes));
+		//this.addRythm(generator.generateRythm(numberOfNotes));
 	}
 
 	// returns a continuation of the current rhythm using the same note values or same division/main structure but continues
