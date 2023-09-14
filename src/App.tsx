@@ -21,15 +21,19 @@ function App() {
 		console.log("Midi enabled result:", result);
 
 		const intMotif = new Motif({
-			time: ["8n", "8n", "8n", "8n", "8n", "8n", "4n", "4n", "4n"],
+			time: ["8n", "8n", "8n", "8n", "8n", "8n"],
 			//time: Generator.fill("4n", 3),
-			duration: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-			noteIndex: [1, 1, 1, 2, 2, 0, 0, 1, 2],
-			transposition: [0, -1, 0, 0, 1, 0, -1, -1, 0],
-			octaveShift: [1, 1, 1, 0, 0, 0, -1, 1, 0],
+			duration: [0, 0, 0, 0, 0, 0],
+			noteIndex: [1, 1, 1, 2, 2, 0],
+			transposition: [0, -1, 0, 0, 1, 0],
+			octaveShift: [1, 1, 1, 0, 0, 0],
 		});
+
+		intMotif.setKeyWithStrings(["Eb", "F", "G", "A", "Bb", "C", "D"]);
+		console.log("The motifs key is: ", intMotif.key);
+
 		//motif.updateTransposition();
-		intMotif.notes.notenames = ["G4", "Bb4", "D5"];
+		intMotif.notes.notenames = ["G4", "C5", "D5"];
 		//motif.notes.reverse();
 		console.log("The motif as a part is: ", intMotif.motif);
 		intMotif.startRythm(true);
@@ -121,7 +125,7 @@ function App() {
 
 	useEffect(() => {
 		// This code will run when the component mounts (on page refresh) and whenever the dependencies change.
-		Transport.bpm.rampTo(120, 0.1);
+		Transport.bpm.rampTo(100, 0.1);
 	}, []); // The empty dependency array [] ensures it only runs once on component mount
 	return (
 		<div className="App">
@@ -130,8 +134,8 @@ function App() {
 				<HoverAreasComponent
 					noteArrays={[
 						["G4", "Bb4", "D5"],
-						["F4", "A4", "D5"],
-						["D3", "F#4", "A4"],
+						["D4", "F4", "A4"],
+						["D#3", "F4", "A4", "Bb4"],
 						["Eb3", "G4", "Bb4"],
 						["C3", "A4", "F4"],
 						// ["Db4", "Cb4", "Bb3"],
