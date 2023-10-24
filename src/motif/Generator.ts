@@ -1,4 +1,9 @@
 import { Time } from "tone";
+import motifsData from "./Motifs.json";
+import { MotifOptions } from "./Motif";
+import Motif from "./Motif";
+
+console.log(motifsData);
 
 // // Define the possible beat combination
 const twoBeats = [
@@ -10,11 +15,12 @@ const twoBeats = [
 const possible: Record<string, Array<Array<string>>> = {
 	"4n": [
 		["8n", "8n"],
-		["8n.", "16n"],
-		["8n", "16n", "16n"],
-		["16n", "16n", "16n", "16n"],
+		["4n"],
+		//["8n.", "16n"],
+		//["8n", "16n", "16n"],
+		//["16n", "16n", "16n", "16n"],
 	],
-	"1m": [["8n", "8n"]],
+	"1m": [["1m"], ["2n", "2n"], ["2n.", "4n"], ["2n.", "8n", "8n"]],
 };
 
 class Generator {
@@ -22,7 +28,92 @@ class Generator {
 		console.log("Generator was constructed.");
 	}
 
+	static getMotifFromStore() {
+		const bachMotifs = motifsData.motifs.bach;
+		//const bachMotifs = motifsData.motifs.bach;
+		//console.log("bachMotifs: ", bachMotifs);
+		const randomIndex = Math.floor(Math.random() * bachMotifs.length);
+		const returnMotif = new Motif(bachMotifs[0]);
+		return returnMotif;
+	}
+
+	static generateSmallForm(form: Array<string>, noteValue: string) {
+		const result = [];
+		// const partA = this.fill(noteValue, 2);
+		// const partB = this.fill(noteValue, 2);
+		const partA = this.getMotifFromStore();
+		const partB = this.getMotifFromStore();
+		for (const part of form) {
+			if (part === "A") {
+				// If the part is 'A', add a fill generation for 'A'
+				result.push(partA);
+			} else if (part === "B") {
+				// If the part is 'B', add a fill generation for 'B'
+				result.push(partB);
+			} else {
+				// Handle other parts if needed, e.g., add a default fill generation
+				result.push(this.fill(noteValue)); // You can replace 'Default' with your preferred default value
+			}
+		}
+		const returnMotif = new Motif(this.concatenateResults(result));
+		return returnMotif;
+	}
+
+	private static concatenateResults(result: any) {
+		const concatenatedResult = {
+			times: [],
+			noteIndexes: [],
+			transpositions: [],
+			octaveShifts: [],
+		};
+
+		result.forEach((oneResult: any) => {
+			concatenatedResult.times = concatenatedResult.times.concat(
+				oneResult.times
+			);
+			concatenatedResult.noteIndexes = concatenatedResult.noteIndexes.concat(
+				oneResult.noteIndexes
+			);
+			concatenatedResult.transpositions =
+				concatenatedResult.transpositions.concat(oneResult.transpositions);
+			concatenatedResult.octaveShifts = concatenatedResult.octaveShifts.concat(
+				oneResult.octaveShifts
+			);
+		});
+
+		return concatenatedResult;
+	}
+
+	static plainMotifFromNotes(notes: Array<string>) {
+		const times = notes.map(() => "4n");
+		const noteIndexes = notes.map((note, index) => index);
+		const transpositions = notes.map(() => 0);
+		const octaveShifts = notes.map(() => 0);
+		const returnMotif = new Motif({
+			times,
+			noteIndexes,
+			transpositions,
+			octaveShifts,
+		});
+		returnMotif.notes.notenames = notes;
+		return returnMotif;
+	}
+
 	static fill(notevalue: string, numberOfBeats: number = 1) {
+		const times = this.times(notevalue, numberOfBeats);
+		const noteIndexes = this.noteIndexes(times);
+		const transpositions = this.transpositions(noteIndexes, 7);
+		const octaveShifts = this.octaveShifts(transpositions);
+		const returnMotif = new Motif({
+			times,
+			noteIndexes,
+			transpositions,
+			octaveShifts,
+		});
+		return returnMotif;
+	}
+
+	static times(notevalue: string, numberOfBeats: number = 1) {
 		const combinedCombinations = [];
 		for (let i = 0; i < numberOfBeats; i++) {
 			const possibleNoteCombinations = possible[notevalue];
@@ -36,6 +127,106 @@ class Generator {
 		}
 		return combinedCombinations.flat();
 	}
+
+	static noteIndexes(time: Array<string>) {
+		return time.map(() => Math.floor(Math.random() * 3)).sort((a, b) => a - b);
+	}
+
+	static transpositions(
+		noteIndexes: Array<number>,
+		maxSteps: number = 1
+	): Array<number> {
+		let hasPreceedingNote = false;
+		let hasFollowingNote = false;
+		const transpositions: Array<number> = [];
+		noteIndexes.forEach((noteIndex, index) => {
+			if (index === 0) {
+				hasPreceedingNote = false;
+				hasFollowingNote = this.findHasNextNote(
+					noteIndexes,
+					index,
+					transpositions
+				);
+			} else if (index + 1 > noteIndexes.length) {
+				hasFollowingNote = false;
+				hasPreceedingNote = this.findHasPreviousNote(
+					noteIndexes,
+					index,
+					transpositions
+				);
+			} else {
+				hasFollowingNote = this.findHasNextNote(
+					noteIndexes,
+					index,
+					transpositions
+				);
+				hasPreceedingNote = this.findHasPreviousNote(
+					noteIndexes,
+					index,
+					transpositions
+				);
+			}
+			if (hasFollowingNote || hasPreceedingNote) {
+				const values = this.generateArrayOfSteps(maxSteps);
+				const randomValue = values[Math.floor(Math.random() * values.length)];
+				transpositions.push(randomValue);
+			} else {
+				transpositions.push(0);
+			}
+		});
+		return transpositions;
+	}
+
+	static octaveShifts(transpositions: Array<number>) {
+		return transpositions.map(() => Math.floor(Math.random() * 1));
+		//return transpositions.map(() => 0);
+	}
+
+	private static findHasPreviousNote(
+		noteIndexes: Array<number>,
+		index: number,
+		transpositions: Array<number>
+	): boolean {
+		const currentNoteIndex = noteIndexes[index];
+		const previousNoteIndex = noteIndexes[index - 1];
+		if (currentNoteIndex === previousNoteIndex) {
+			//console.log("Found previous note for: ", currentNoteIndex);
+			// Check if the previous transposition is anything else than 0. In that case return no transposition.
+			if (transpositions[transpositions.length - 1] === 0) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	private static findHasNextNote(
+		noteIndexes: Array<number>,
+		index: number,
+		transpositions: Array<number>
+	): boolean {
+		const currentNoteIndex = noteIndexes[index];
+		const nextNoteIndex = noteIndexes[index + 1];
+		if (currentNoteIndex === nextNoteIndex) {
+			//console.log("Found next note for: ", currentNoteIndex);
+			if (transpositions[transpositions.length - 1] === 0) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	private static generateArrayOfSteps(maximumNumberOfSteps: number): number[] {
+		const values = [];
+		for (let i = -maximumNumberOfSteps; i <= maximumNumberOfSteps; i++) {
+			if (i !== 0) {
+				values.push(i);
+			}
+		}
+		return values;
+	}
+
 	/* 
 	splitValue(value: number, parts: number, isSimple: boolean = true): number[] {
 		let combinations: number[][] = [];

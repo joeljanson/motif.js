@@ -4,7 +4,7 @@ class Notes {
 	private _notenames: Array<string>;
 
 	constructor(notenames?: Array<string>) {
-		this._notenames = notenames ?? ["C4", "E4", "G4"];
+		this._notenames = notenames ?? [];
 	}
 
 	set notenames(newNotes: Array<string>) {

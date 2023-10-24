@@ -1,0 +1,44 @@
+{
+	"motifs": {
+		"bach": [
+			{
+				"times": ["8n", "8n", "8n", "8n", "8n", "8n"],
+				"noteIndexes": [1, 1, 1, 2, 2, 0],
+				"transpositions": [0, -2, 0, 0, 1, 0],
+				"octaveShifts": [1, 1, 1, 0, 0, 0]
+			},
+			{
+				"times": ["8n", "4n", "4n", "8n", "8n", "8n"],
+				"noteIndexes": [1, 1, 1, 2, 2, 0],
+				"transpositions": [0, -1, -2, 1, -1, 0],
+				"octaveShifts": [1, 1, 1, 0, 0, 0]
+			},
+			{
+				"times": ["8n", "8n", "8n", "8n", "8n", "8n"],
+				"noteIndexes": [1, 1, 1, 2, 2, 0],
+				"transpositions": [0, 1, 0, 0, 1, -1],
+				"octaveShifts": [1, 1, 1, 0, 0, 0]
+			}
+		],
+		"test": [
+			{
+				"times": ["2n", "2n", "2n.", "4n", "2n", "2n", "2n", "2n"],
+				"noteIndexes": [0, 1, 2, 2, 2, 2, 0, 1],
+				"transpositions": [0, 0, 0, -1, 1, 0, 0, 0],
+				"octaveShifts": [0, 0, 0, 0, 0, 0, 0, 0]
+			},
+			{
+				"times": ["2n", "2n", "2n.", "4n", "2n", "2n", "2n", "2n"],
+				"noteIndexes": [0, 1, 2, 1, 1, 1, 2, 2],
+				"transpositions": [0, 0, 0, -1, 1, 0, 0, -1],
+				"octaveShifts": [0, 0, 0, 1, 1, 1, 1, 1]
+			},
+			{
+				"times": ["2n", "2n", "2n.", "4n", "2n", "2n", "2n", "2n"],
+				"noteIndexes": [0, 1, 2, 1, 1, 1, 2, 2],
+				"transpositions": [0, 0, 0, -1, -2, 0, -7, -3],
+				"octaveShifts": [0, 0, 0, 1, 1, 1, 1, 1]
+			}
+		]
+	}
+}
