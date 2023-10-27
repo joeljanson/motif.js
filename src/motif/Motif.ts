@@ -16,6 +16,7 @@ export type MotifOptions = {
 	noteIndexes: Array<number>;
 	transpositions: Array<number>;
 	octaveShifts: Array<number>;
+	velocities: Array<number>;
 	notesToPlayAtIndex: Array<number>;
 };
 
@@ -27,6 +28,7 @@ export type MotifPartOptions = {
 	//octaveShift: number;
 	//notesToPlayAtIndex: Array<number>;
 	index: number;
+	velocity: number;
 };
 
 class Motif {
@@ -45,12 +47,14 @@ class Motif {
 			transpositions: [0],
 			octaveShifts: [0],
 			notesToPlayAtIndex: [0],
+			velocities: [0.5],
 		};
 
 		this._motif.times = motif?.times ?? [0];
 		this._motif.noteIndexes = motif?.noteIndexes ?? [0];
 		this._motif.transpositions = motif?.transpositions ?? [0];
 		this._motif.octaveShifts = motif?.octaveShifts ?? [0];
+		this._motif.velocities = motif?.velocities ?? [0.5];
 		this._motif.notesToPlayAtIndex = motif?.notesToPlayAtIndex ?? [0];
 		console.log(this._motif);
 
@@ -78,9 +82,11 @@ class Motif {
 						time: time,
 						duration: duration,
 						index: index,
-						//noteIndex: this._motif.noteIndex[index],
-						//transposition: this._motif.transposition[index],
-						//octaveShift: this._motif.octaveShift[index],
+						velocity:
+							this._motif.velocities[index % this._motif.velocities.length],
+						/* noteIndexes: this._motif.noteIndexes[index],
+						transpositions: this._motif.transpositions[index],
+						octaveShifts: this._motif.octaveShifts[index], */
 					};
 				}
 			);
@@ -132,56 +138,123 @@ class Motif {
 	}
 
 	updateNotesToPlayAtIndex() {
-		this._motif.notesToPlayAtIndex = this._motif.noteIndexes.map(
-			(noteIndex, index) => {
-				const midiPitchClasses = Array.from(
-					new Set([
-						//...this.notes.notesAsMidi.map(midiNoteToPitchClassNumber),
-						...this.key,
-					])
-				);
+		if (this._motif.noteIndexes.length > this._motif.times.length) {
+			this._motif.notesToPlayAtIndex = this.getNoteIndexesToPlayFromArray(
+				this._motif.noteIndexes
+			);
+		} else {
+			this._motif.notesToPlayAtIndex = this._motif.times.map(
+				(time: any, index: number) => {
+					const midiPitchClasses = Array.from(
+						new Set([
+							//...this.notes.notesAsMidi.map(midiNoteToPitchClassNumber),
+							...this.key,
+						])
+					);
 
-				//console.log("Midi pitchclasses: ", midiPitchClasses);
-				//console.log("This key: ", this._key);
-				//const notePC = Note.chroma(note);
-				//const midiNote = Note.midi(note);
+					//console.log("Midi pitchclasses: ", midiPitchClasses);
+					//console.log("This key: ", this._key);
+					//const notePC = Note.chroma(note);
+					//const midiNote = Note.midi(note);
 
-				const allMidiNotes = midiPitchClasses
-					.map((pitchClass) => pitchClassToAllMidiNotes(pitchClass, 12))
-					.flat();
-				allMidiNotes.sort((a, b) => a - b);
-				//console.log("All midi notes:", allMidiNotes);
+					const allMidiNotes = midiPitchClasses
+						.map((pitchClass) => pitchClassToAllMidiNotes(pitchClass, 12))
+						.flat();
+					allMidiNotes.sort((a, b) => a - b);
+					//console.log("All midi notes:", allMidiNotes);
+					const noteIndex =
+						this._motif.noteIndexes[index % this._motif.noteIndexes.length];
 
-				const midiNoteToPlay =
-					this.notes.notesAsMidi[noteIndex % this.notes.notesAsMidi.length];
-				const midiNoteChroma = Note.chroma(Note.fromMidi(midiNoteToPlay));
-				//console.log("midiNoteToPlay midi notes:", midiNoteToPlay);
-				if (midiNoteChroma != null) {
-					const indexOfNoteInMidiPitchclasses =
-						midiPitchClasses.indexOf(midiNoteChroma);
-					/* console.log(
+					const midiNoteToPlay =
+						this.notes.notesAsMidi[noteIndex % this.notes.notesAsMidi.length];
+					const midiNoteChroma = Note.chroma(Note.fromMidi(midiNoteToPlay));
+					if (midiNoteChroma != null) {
+						const indexOfNoteInMidiPitchclasses =
+							midiPitchClasses.indexOf(midiNoteChroma);
+						/* console.log(
 					"indexOfNoteInMidiPitchclasses:",
 					indexOfNoteInMidiPitchclasses
 				); */
-					let transposedMidiIndex =
-						(indexOfNoteInMidiPitchclasses +
-							this._motif.transpositions[index] +
-							midiPitchClasses.length) %
-						midiPitchClasses.length;
+						let transposedMidiIndex =
+							(indexOfNoteInMidiPitchclasses +
+								this._motif.transpositions[
+									index % this._motif.transpositions.length
+								] +
+								midiPitchClasses.length) %
+							midiPitchClasses.length;
+						//console.log("Transposed midi note is: ", transposedMidiIndex);
 
-					const finalMidiNote =
-						midiPitchClasses[transposedMidiIndex] +
-						(midiNoteToPlay - midiNoteChroma) +
-						this._motif.octaveShifts[index] * 12 +
-						this.transposition;
-					//console.log("Final midi note is: ", finalMidiNote);
-					return finalMidiNote;
-				} else {
-					return 0;
+						const finalMidiNote =
+							midiPitchClasses[transposedMidiIndex] +
+							(midiNoteToPlay - midiNoteChroma) +
+							this._motif.octaveShifts[
+								index % this._motif.octaveShifts.length
+							] *
+								12 +
+							this.transposition;
+						//console.log("Final midi note is: ", finalMidiNote);
+						return finalMidiNote;
+					} else {
+						return 0;
+					}
 				}
-			}
-		);
+			);
+		}
 		//console.log(this._motif.notesToPlayAtIndex);
+	}
+
+	getNoteIndexesToPlayFromArray(array: number[]) {
+		return array.map((noteIndex: number, index: number) => {
+			const midiPitchClasses = Array.from(
+				new Set([
+					//...this.notes.notesAsMidi.map(midiNoteToPitchClassNumber),
+					...this.key,
+				])
+			);
+
+			//console.log("Midi pitchclasses: ", midiPitchClasses);
+			//console.log("This key: ", this._key);
+			//const notePC = Note.chroma(note);
+			//const midiNote = Note.midi(note);
+
+			const allMidiNotes = midiPitchClasses
+				.map((pitchClass) => pitchClassToAllMidiNotes(pitchClass, 12))
+				.flat();
+			allMidiNotes.sort((a, b) => a - b);
+			//console.log("All midi notes:", allMidiNotes);
+
+			const midiNoteToPlay =
+				this.notes.notesAsMidi[noteIndex % this.notes.notesAsMidi.length];
+			const midiNoteChroma = Note.chroma(Note.fromMidi(midiNoteToPlay));
+			console.log("midiNoteToPlay midi notes:", midiNoteToPlay);
+			if (midiNoteChroma != null) {
+				const indexOfNoteInMidiPitchclasses =
+					midiPitchClasses.indexOf(midiNoteChroma);
+				/* console.log(
+					"indexOfNoteInMidiPitchclasses:",
+					indexOfNoteInMidiPitchclasses
+				); */
+				let transposedMidiIndex =
+					(indexOfNoteInMidiPitchclasses +
+						this._motif.transpositions[
+							index % this._motif.transpositions.length
+						] +
+						midiPitchClasses.length) %
+					midiPitchClasses.length;
+				console.log("Transposed midi note is: ", transposedMidiIndex);
+
+				const finalMidiNote =
+					midiPitchClasses[transposedMidiIndex] +
+					(midiNoteToPlay - midiNoteChroma) +
+					this._motif.octaveShifts[index % this._motif.octaveShifts.length] *
+						12 +
+					this.transposition;
+				console.log("Final midi note is: ", finalMidiNote);
+				return finalMidiNote;
+			} else {
+				return 0;
+			}
+		});
 	}
 
 	get notesToPlayAtIndex(): Array<number> {
@@ -224,6 +297,9 @@ class Motif {
 
 	start(startTime: number | string = 0) {
 		const midiHandler = MidiHandler.getInstance();
+		console.log(this._motif);
+		console.log(this._motif.notesToPlayAtIndex);
+		console.log(this.notesToPlayAtIndex[1]);
 		if (!this._part) {
 			this._part = new Part((time, note: MotifPartOptions) => {
 				// the notes given as the second element in the array
@@ -234,9 +310,9 @@ class Motif {
 					notes: [notesToPlay],
 					time: lookAhead,
 					duration: note.duration,
-					velocity: 0.5,
+					velocity: note.velocity,
 				});
-				//console.log("Playing notes: ", notesToPlay);
+				console.log("Playing notes: ", notesToPlay);
 				console.log("Playing for duration: ", note.duration);
 				// console.log("Playing with velocity: ", 0.5);
 			}, this.motif);
@@ -257,7 +333,7 @@ class Motif {
 					notes: [notesToPlay],
 					time: lookAhead,
 					duration: note.duration,
-					velocity: 0.5,
+					velocity: note.velocity,
 				});
 				//console.log("Playing notes: ", notesToPlay);
 				console.log("Playing for duration: ", note.duration);

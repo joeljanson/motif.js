@@ -13,7 +13,7 @@ interface XYCoordinates {
 	y: number;
 }
 
-const XYPadTwo: React.FC = () => {
+const RythmicPatch: React.FC = () => {
 	const [mouseDown, setMouseDown] = useState(false);
 	const [midiHandler, setMidiHandler] = useState<MidiHandler | null>(null);
 	const motifs = useRef<Array<Motif | null>>([]);
@@ -44,7 +44,7 @@ const XYPadTwo: React.FC = () => {
 
 		setMouseDown(true);
 		updateCoordinates(e);
-		updateRythms(scaledX, scaledY);
+		//updateRythms(scaledX, scaledY);
 		updateTransposition(scaledX, scaledY);
 		updateScale();
 		motifs.current.forEach((motif) => {
@@ -78,10 +78,14 @@ const XYPadTwo: React.FC = () => {
 		console.log(`X: ${scaledX}, Y: ${scaledY}`);
 		//updateRootNotes();
 		updateTransposition(scaledX, scaledY);
+		const internalMidiHandler = MidiHandler.getInstance();
+		internalMidiHandler.velocityFactor = scaledX;
+		/* Transport.bpm.value = 50;
+		Transport.bpm.rampTo(50 + scaledX * 80, 2); */
 	};
 
 	const updateTransposition = (x: number, y: number) => {
-		motifs.current.forEach((motif) => {
+		motifs.current.forEach((motif, index) => {
 			motif!.transposition = Math.round(y * 12);
 			motif!.updateNotesToPlayAtIndex();
 			console.log(motif?.transposition);
@@ -89,8 +93,8 @@ const XYPadTwo: React.FC = () => {
 	};
 
 	const updateScale = () => {
-		//const scale = "C messiaen's mode #3";
-		const scale = "F dorian";
+		const scale = "C messiaen's mode #3";
+		//const scale = "C whole tone";
 		motifs.current.forEach((motif) => {
 			motif!.setKeyWithStrings(
 				Scale.get(scale).notes.map((note) => note + "4")
@@ -100,15 +104,13 @@ const XYPadTwo: React.FC = () => {
 	};
 
 	const updateRythms = (x: number, y: number) => {
-		motifs.current.forEach((motif, index) => {
-			let possibleTimes = getRhythmForXValue(x);
-			if (index === 0) {
-				possibleTimes = ["2n."];
-			}
+		const possibleTimes = getRhythmForXValue(x);
+
+		motifs.current.forEach((motif) => {
+			motif!.transposition = Math.round(y * 12);
 			const transformedMotifTimes = motif!.times.map(() =>
 				getRandomItem(possibleTimes)
 			);
-			console.log("transformed times:", transformedMotifTimes);
 			motif!.times = transformedMotifTimes;
 			motif!.updateNotesToPlayAtIndex();
 		});
@@ -116,13 +118,13 @@ const XYPadTwo: React.FC = () => {
 
 	const getRhythmForXValue = (x: number): string[] => {
 		if (x >= 0 && x < 0.25) {
-			return ["2m", "1m"];
-		} else if (x >= 0.25 && x < 0.5) {
 			return ["2n", "2n."];
-		} else if (x >= 0.5 && x < 0.75) {
+		} else if (x >= 0.25 && x < 0.5) {
 			return ["4n", "4n."];
+		} else if (x >= 0.5 && x < 0.75) {
+			return ["8n", "8n."];
 		} else if (x >= 0.75 && x <= 1) {
-			return ["8n", "8n"];
+			return ["16n", "16n"];
 		} else {
 			throw new Error("Invalid X value");
 		}
@@ -135,19 +137,58 @@ const XYPadTwo: React.FC = () => {
 
 	const setupMotifs = () => {
 		/* const rootNotes = ["C3", "D4", "E4", "F#4"]; */
-		const rootNotes = ["C3", "E4", "G4", "D4", "B4"];
-		const possibleTimes = ["2n", "2n", "4n", "2n."];
-		const allIntervals = [
-			[-1, 1, -5, -2, 5, 4],
-			[-1, 0, -5, -6, 5, 4],
-			[-1, 2, -1, -2, 1, 1],
-			[-1, 1, -4, -4, 3, 1],
-			[-1, 0, -4, -2, 1, 6],
-		];
-		rootNotes.forEach((note, index) => {
+
+		const firstMotif = new Motif({
+			times: [
+				"16n",
+				"32n",
+				"32n",
+				"4n",
+				"2n.",
+				"2n",
+				"4n",
+				"8n.",
+				"32n",
+				"4n",
+				"8n.",
+			],
+			noteIndexes: [0, 1, 2, 1, 3],
+			velocities: [1, 0.5, 0.5],
+		});
+		firstMotif.setNoteNames(["C4", "E4", "G4", "F#4"]);
+
+		const secondMotif = new Motif({
+			times: ["4n", "4n", "4n", "4n"],
+			noteIndexes: [0, 1, 2, 1],
+			transpositions: [-0, -1, -6, -7],
+			velocities: [1, 0.5, 0.5],
+		});
+		secondMotif.setNoteNames(["G3", "EB3", "C3"]);
+
+		const fourth = new Motif({
+			times: ["16n", "16n", "16n", "16n", "2n"],
+			noteIndexes: [0, 1, 2, 0],
+			transpositions: [0, -1, -6, -7],
+			velocities: [1, 1.0, 1.0, 0.5, 0.5],
+		});
+		fourth.setNoteNames([".", "F5", "A5"]);
+
+		const thirdMotif = new Motif({
+			times: ["16t", "16t", "16t", "16n", "8t", "8t", "8t", "16n"],
+			noteIndexes: [0, 0, 0, 0, 0, 0, 0, 0],
+			transpositions: [0, -10, -9, -7, -5, -3, -2, 0],
+			velocities: [1, 0.5, 0.5],
+		});
+		thirdMotif.setNoteNames(["G5"]);
+
+		motifs.current.push(secondMotif, firstMotif, thirdMotif, fourth);
+		//motifs.current.push(fourth);
+		/* const rootNotes = ["C4", "C5", "G4", "Eb4"];
+		const possibleTimes = ["2n", "8n", "4n", "8n."];
+		rootNotes.forEach((note) => {
 			const noteSeq = new NoteSequence(note);
-			const intervals = allIntervals[index];
-			//const intervals = [-1, -1, -1, -1, -1];
+			//const intervals = [-1, 0, -5, -6, 5, 4];
+			const intervals = [-1, -1, -1, -1, -1];
 			intervals.forEach((interval) => noteSeq.repeat(interval));
 			const notes = noteSeq.sequence;
 
@@ -158,12 +199,11 @@ const XYPadTwo: React.FC = () => {
 			motif.times = transformedMotifTimes;
 
 			motifs.current.push(motif);
-		});
+		}); */
 
 		//motif.setNoteNames(notes);
 	};
 	useEffect(() => {
-		Transport.bpm.value = 20;
 		setupMotifs();
 	}, []);
 
@@ -177,4 +217,4 @@ const XYPadTwo: React.FC = () => {
 	);
 };
 
-export default XYPadTwo;
+export default RythmicPatch;

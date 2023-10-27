@@ -25,10 +25,10 @@ class Notes {
 	convertNoteNameToMidi(noteName: string) {
 		const midiNote = Frequency(noteName).toMidi().valueOf();
 		if (isNaN(midiNote)) {
-			console.error(
+			/* console.error(
 				"Note provided could not be turned into a midi note. Note was: ",
 				noteName
-			);
+			); */
 			return -1;
 		}
 		return midiNote;

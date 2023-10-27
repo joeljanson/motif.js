@@ -14,10 +14,12 @@ class MidiHandler {
 	private static instance: MidiHandler | null = null;
 	private _channel: number;
 	private _output: number;
+	public velocityFactor: number;
 
 	constructor() {
 		this._channel = 1;
 		this._output = 0;
+		this.velocityFactor = 1;
 	}
 	public async enableMidi(): Promise<string> {
 		try {
@@ -39,6 +41,7 @@ class MidiHandler {
 	}
 
 	public playNotes(midiInfo: MidiInfo) {
+		console.log("midiInfo: ", midiInfo);
 		midiInfo.notes.forEach((note: number | string) => {
 			if (typeof note === "number") {
 				// It's a number representing a note
@@ -46,7 +49,7 @@ class MidiHandler {
 				WebMidi.outputs[this._output].channels[1].playNote(inRangeNote, {
 					time: "+" + midiInfo.time * 1000,
 					duration: midiInfo.duration * 990,
-					attack: midiInfo.velocity,
+					attack: midiInfo.velocity * this.velocityFactor,
 				});
 			} else if (typeof note === "string" && note === ".") {
 				// It's a string representing a rest
