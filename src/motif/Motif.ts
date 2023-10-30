@@ -16,8 +16,10 @@ export type MotifOptions = {
 	noteIndexes: Array<number>;
 	transpositions: Array<number>;
 	octaveShifts: Array<number>;
+	harmonizations: Array<Array<number>>;
 	velocities: Array<number>;
-	notesToPlayAtIndex: Array<number>;
+	notesToPlayAtIndex: Array<Array<number>>;
+	length: number | undefined;
 };
 
 export type MotifPartOptions = {
@@ -37,6 +39,7 @@ class Motif {
 	private _part: Part | undefined;
 	private _globalTransposition: number = 0;
 	private _key: Array<number>; // An array containing the pitchclasses in the current key
+	private _length: number | undefined;
 
 	public position: number;
 
@@ -46,20 +49,24 @@ class Motif {
 			noteIndexes: [0],
 			transpositions: [0],
 			octaveShifts: [0],
-			notesToPlayAtIndex: [0],
+			notesToPlayAtIndex: [[0]],
+			harmonizations: [[0]],
 			velocities: [0.5],
+			length: undefined,
 		};
 
 		this._motif.times = motif?.times ?? [0];
 		this._motif.noteIndexes = motif?.noteIndexes ?? [0];
 		this._motif.transpositions = motif?.transpositions ?? [0];
 		this._motif.octaveShifts = motif?.octaveShifts ?? [0];
+		this._motif.harmonizations = motif?.harmonizations ?? [[0]];
 		this._motif.velocities = motif?.velocities ?? [0.5];
-		this._motif.notesToPlayAtIndex = motif?.notesToPlayAtIndex ?? [0];
+		this._motif.notesToPlayAtIndex = motif?.notesToPlayAtIndex ?? [[0]];
 		console.log(this._motif);
 
 		this._notes = new Notes();
 		this._key = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+		this._length = motif?.length ?? undefined;
 
 		this.position = 0;
 		this.updateNotesToPlayAtIndex();
@@ -95,13 +102,21 @@ class Motif {
 		return [];
 	}
 
+	set length(loopLength: number) {
+		this._length = loopLength;
+	}
+
 	get length() {
 		if (this._motif) {
-			const length = this.motif.reduce(
-				(rhythmAcc, value) => rhythmAcc + value.duration,
-				0
-			);
-			return length;
+			if (!this._length) {
+				const length = this.motif.reduce(
+					(rhythmAcc, value) => rhythmAcc + value.duration,
+					0
+				);
+				return length;
+			} else {
+				return this._length;
+			}
 		} else {
 			return 0;
 		}
@@ -139,6 +154,7 @@ class Motif {
 
 	updateNotesToPlayAtIndex() {
 		if (this._motif.noteIndexes.length > this._motif.times.length) {
+			console.log("Noteindexes are longer!");
 			this._motif.notesToPlayAtIndex = this.getNoteIndexesToPlayFromArray(
 				this._motif.noteIndexes
 			);
@@ -193,9 +209,16 @@ class Motif {
 								12 +
 							this.transposition;
 						//console.log("Final midi note is: ", finalMidiNote);
-						return finalMidiNote;
+
+						const harmonizedNotes = this._motif.harmonizations[
+							index % this._motif.harmonizations.length
+						].map((note) => {
+							return note + finalMidiNote;
+						});
+
+						return harmonizedNotes;
 					} else {
-						return 0;
+						return [0];
 					}
 				}
 			);
@@ -205,35 +228,20 @@ class Motif {
 
 	getNoteIndexesToPlayFromArray(array: number[]) {
 		return array.map((noteIndex: number, index: number) => {
-			const midiPitchClasses = Array.from(
-				new Set([
-					//...this.notes.notesAsMidi.map(midiNoteToPitchClassNumber),
-					...this.key,
-				])
-			);
-
-			//console.log("Midi pitchclasses: ", midiPitchClasses);
-			//console.log("This key: ", this._key);
-			//const notePC = Note.chroma(note);
-			//const midiNote = Note.midi(note);
+			const midiPitchClasses = Array.from(new Set([...this.key]));
 
 			const allMidiNotes = midiPitchClasses
 				.map((pitchClass) => pitchClassToAllMidiNotes(pitchClass, 12))
 				.flat();
 			allMidiNotes.sort((a, b) => a - b);
-			//console.log("All midi notes:", allMidiNotes);
 
 			const midiNoteToPlay =
 				this.notes.notesAsMidi[noteIndex % this.notes.notesAsMidi.length];
 			const midiNoteChroma = Note.chroma(Note.fromMidi(midiNoteToPlay));
-			console.log("midiNoteToPlay midi notes:", midiNoteToPlay);
 			if (midiNoteChroma != null) {
 				const indexOfNoteInMidiPitchclasses =
 					midiPitchClasses.indexOf(midiNoteChroma);
-				/* console.log(
-					"indexOfNoteInMidiPitchclasses:",
-					indexOfNoteInMidiPitchclasses
-				); */
+
 				let transposedMidiIndex =
 					(indexOfNoteInMidiPitchclasses +
 						this._motif.transpositions[
@@ -241,7 +249,6 @@ class Motif {
 						] +
 						midiPitchClasses.length) %
 					midiPitchClasses.length;
-				console.log("Transposed midi note is: ", transposedMidiIndex);
 
 				const finalMidiNote =
 					midiPitchClasses[transposedMidiIndex] +
@@ -249,15 +256,21 @@ class Motif {
 					this._motif.octaveShifts[index % this._motif.octaveShifts.length] *
 						12 +
 					this.transposition;
-				console.log("Final midi note is: ", finalMidiNote);
-				return finalMidiNote;
+
+				const harmonizedNotes = this._motif.harmonizations[
+					index % this._motif.harmonizations.length
+				].map((note) => {
+					return note + finalMidiNote;
+				});
+
+				return harmonizedNotes;
 			} else {
-				return 0;
+				return [0];
 			}
 		});
 	}
 
-	get notesToPlayAtIndex(): Array<number> {
+	get notesToPlayAtIndex(): Array<Array<number>> {
 		return this._motif.notesToPlayAtIndex;
 	}
 
@@ -306,8 +319,9 @@ class Motif {
 				// will be passed in as the second argument
 				const lookAhead = 0.1 + (time - Transport.now());
 				const notesToPlay = this.notesToPlayAtIndex[note.index];
+				console.log("Notes to play", notesToPlay);
 				midiHandler.playNotes({
-					notes: [notesToPlay],
+					notes: notesToPlay,
 					time: lookAhead,
 					duration: note.duration,
 					velocity: note.velocity,
@@ -330,7 +344,7 @@ class Motif {
 				const lookAhead = 0.1 + time - now();
 				const notesToPlay = this.notesToPlayAtIndex[note.index];
 				midiHandler.playNotes({
-					notes: [notesToPlay],
+					notes: notesToPlay,
 					time: lookAhead,
 					duration: note.duration,
 					velocity: note.velocity,
@@ -339,7 +353,9 @@ class Motif {
 				console.log("Playing for duration: ", note.duration);
 				// console.log("Playing with velocity: ", 0.5);
 			}, this.motif);
-			this._part.start("+" + Time(startTime).toSeconds());
+			this._part.start(
+				"+" + Time(startTime).toSeconds() + Time(this.position).toSeconds()
+			);
 			this._part.loop = true;
 			//this._part.loop = loop;
 			this._part.loopEnd = this.length;
