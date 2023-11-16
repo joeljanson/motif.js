@@ -13,7 +13,7 @@ interface XYCoordinates {
 	y: number;
 }
 
-const XYPadThree: React.FC = () => {
+const XYPadFour: React.FC = () => {
 	const [mouseDown, setMouseDown] = useState(false);
 	const [midiHandler, setMidiHandler] = useState<MidiHandler | null>(null);
 	const motifs = useRef<Array<Motif | null>>([]);
@@ -83,20 +83,37 @@ const XYPadThree: React.FC = () => {
 	const updateTransposition = (x: number, y: number) => {
 		motifs.current.forEach((motif) => {
 			motif!.transposition = Math.round(y * 12);
+			motif!.harmonizations = getHarmonyForValue(x);
 			motif!.updateNotesToPlayAtIndex();
 			console.log(motif?.transposition);
 		});
 	};
 
 	const updateScale = () => {
-		//const scale = "C messiaen's mode #3";
-		const scale = "F dorian";
+		const scale = "C messiaen's mode #3";
+		//const scale = "F dorian";
 		motifs.current.forEach((motif) => {
 			motif!.setKeyWithStrings(
 				Scale.get(scale).notes.map((note) => note + "4")
 			);
 			motif!.updateNotesToPlayAtIndex();
 		});
+	};
+
+	const updateHarmony = (x: number, y: number) => {};
+
+	const getHarmonyForValue = (x: number): Array<number[]> => {
+		if (x >= 0 && x < 0.25) {
+			return [[0, 2]];
+		} else if (x >= 0.25 && x < 0.5) {
+			return [[0, 5]];
+		} else if (x >= 0.5 && x < 0.75) {
+			return [[0, 6]];
+		} else if (x >= 0.75 && x <= 1) {
+			return [[0, 9]];
+		} else {
+			throw new Error("Invalid X value");
+		}
 	};
 
 	const updateRythms = (x: number, y: number) => {
@@ -137,20 +154,15 @@ const XYPadThree: React.FC = () => {
 		/* const rootNotes = ["C3", "D4", "E4", "F#4"]; */
 
 		const firstMotif = new Motif({
-			times: ["1m", "1m", "1m", "1m"],
-			noteIndexes: [0, 1, 2, 1, 3],
-			transpositions: [-1, -4, 2],
-			velocities: [1, 0.5, 0.5],
-			harmonizations: [
-				[-24, -12],
-				[-25, -13],
-				[-26, -14],
-				[-22, -10],
-			],
+			times: ["16n", "16n", "16n", "16n"],
+			noteIndexes: [0],
+			transpositions: [-1, -2, -3, -4],
+			velocities: [0.5, 0.4, 0.4, 0.4],
+			harmonizations: [[0, 2]],
 		});
-		firstMotif.setNoteNames(["C4", "E4", "G4", "F#4"]);
+		firstMotif.setNoteNames(["C4"]);
 
-		const secondMotif = new Motif({
+		/* const secondMotif = new Motif({
 			times: ["1m", "1m", "1m", "1m"],
 			noteIndexes: [0, 1, 2, 1, 3],
 			velocities: [1, 0.5, 0.5],
@@ -161,8 +173,8 @@ const XYPadThree: React.FC = () => {
 				[1, 3, 9],
 			],
 		});
-		secondMotif.setNoteNames(["C4", "E4", "G4", "F#4"]);
-		motifs.current.push(firstMotif, secondMotif);
+		secondMotif.setNoteNames(["C4", "E4", "G4", "F#4"]); */
+		motifs.current.push(firstMotif);
 
 		//motif.setNoteNames(notes);
 	};
@@ -176,9 +188,9 @@ const XYPadThree: React.FC = () => {
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
 			onMouseMove={handleMouseMove}
-			style={{ width: "300px", height: "300px", border: "1px solid black" }}
+			style={{ width: "300px", height: "300px", border: "1px solid white" }}
 		></div>
 	);
 };
 
-export default XYPadThree;
+export default XYPadFour;

@@ -9,6 +9,8 @@ import { Transport } from "tone";
 import RythmicPatch from "./Patches/RythmicPatch";
 import RythmicPatchTwo from "./Patches/RythmicPatchTwo";
 import RythmicPatchThree from "./Patches/RythmicPatchThree";
+import XYPadFour from "./Patches/XYPadFour";
+import RythmicPatchFour from "./Patches/RythmicPatchFour";
 
 function App() {
 	useEffect(() => {
@@ -18,11 +20,13 @@ function App() {
 		<div className="App">
 			<header className="App-header">
 				{/* <FirstTestPatch></FirstTestPatch> */}
-				<XYPadThree></XYPadThree>
+				{/* <XYPadThree></XYPadThree> */}
+				{/* <XYPadFour></XYPadFour> */}
 				{/* <XYPadTwo></XYPadTwo> */}
 				{/* <RythmicPatch></RythmicPatch> */}
 				{/* <RythmicPatchTwo></RythmicPatchTwo> */}
 				{/* <RythmicPatchThree></RythmicPatchThree> */}
+				<RythmicPatchFour></RythmicPatchFour>
 				<LogicController />
 			</header>
 		</div>

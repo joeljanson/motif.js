@@ -298,6 +298,11 @@ class Motif {
 		this.updatePart();
 	}
 
+	set harmonizations(newHarmonizations: Array<Array<number>>) {
+		this._motif.harmonizations = newHarmonizations;
+		this.updatePart();
+	}
+
 	updatePart() {
 		if (this._part) {
 			this._part.clear();

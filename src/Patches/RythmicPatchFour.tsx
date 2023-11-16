@@ -13,7 +13,7 @@ interface XYCoordinates {
 	y: number;
 }
 
-const XYPadThree: React.FC = () => {
+const RythmicPatchFour: React.FC = () => {
 	const [mouseDown, setMouseDown] = useState(false);
 	const [midiHandler, setMidiHandler] = useState<MidiHandler | null>(null);
 	const motifs = useRef<Array<Motif | null>>([]);
@@ -46,7 +46,7 @@ const XYPadThree: React.FC = () => {
 		updateCoordinates(e);
 		//updateRythms(scaledX, scaledY);
 		updateTransposition(scaledX, scaledY);
-		updateScale();
+		//updateScale();
 		motifs.current.forEach((motif) => {
 			motif?.start();
 		});
@@ -78,96 +78,84 @@ const XYPadThree: React.FC = () => {
 		console.log(`X: ${scaledX}, Y: ${scaledY}`);
 		//updateRootNotes();
 		updateTransposition(scaledX, scaledY);
+		const internalMidiHandler = MidiHandler.getInstance();
+		internalMidiHandler.velocityFactor = scaledX;
+		/* Transport.bpm.value = 50;
+		Transport.bpm.rampTo(50 + scaledX * 80, 2); */
 	};
 
 	const updateTransposition = (x: number, y: number) => {
-		motifs.current.forEach((motif) => {
-			motif!.transposition = Math.round(y * 12);
+		motifs.current.forEach((motif, index) => {
+			//motif!.transposition = Math.round(y * 12);
+			motif!.setNoteNames(getChordForValue(x));
 			motif!.updateNotesToPlayAtIndex();
 			console.log(motif?.transposition);
 		});
 	};
 
-	const updateScale = () => {
-		//const scale = "C messiaen's mode #3";
-		const scale = "F dorian";
-		motifs.current.forEach((motif) => {
-			motif!.setKeyWithStrings(
-				Scale.get(scale).notes.map((note) => note + "4")
-			);
-			motif!.updateNotesToPlayAtIndex();
-		});
-	};
-
-	const updateRythms = (x: number, y: number) => {
-		motifs.current.forEach((motif, index) => {
-			let possibleTimes = getRhythmForXValue(x);
-			if (index === 0) {
-				possibleTimes = ["2n."];
-			}
-			const transformedMotifTimes = motif!.times.map(() =>
-				getRandomItem(possibleTimes)
-			);
-			console.log("transformed times:", transformedMotifTimes);
-			motif!.times = transformedMotifTimes;
-			motif!.updateNotesToPlayAtIndex();
-		});
-	};
-
-	const getRhythmForXValue = (x: number): string[] => {
+	const getChordForValue = (x: number): string[] => {
 		if (x >= 0 && x < 0.25) {
-			return ["2m", "1m"];
+			return ["G5", "Bb5", "D6"];
 		} else if (x >= 0.25 && x < 0.5) {
-			return ["2n", "2n."];
+			return ["F5", "A5", "D6"];
 		} else if (x >= 0.5 && x < 0.75) {
-			return ["4n", "4n."];
+			return ["G5", "Bb5", "Eb6"];
 		} else if (x >= 0.75 && x <= 1) {
-			return ["8n", "8n"];
+			return ["G5", "Bb5", "D6"];
 		} else {
 			throw new Error("Invalid X value");
 		}
 	};
 
-	const getRandomItem = (array: string[]): string => {
-		const randomIndex = Math.floor(Math.random() * array.length);
-		return array[randomIndex];
-	};
-
 	const setupMotifs = () => {
+		Transport.bpm.value = 80;
 		/* const rootNotes = ["C3", "D4", "E4", "F#4"]; */
 
 		const firstMotif = new Motif({
-			times: ["1m", "1m", "1m", "1m"],
-			noteIndexes: [0, 1, 2, 1, 3],
-			transpositions: [-1, -4, 2],
-			velocities: [1, 0.5, 0.5],
-			harmonizations: [
-				[-24, -12],
-				[-25, -13],
-				[-26, -14],
-				[-22, -10],
-			],
+			times: ["8t", "8t", "8t"],
+			noteIndexes: [0, 0, 1, 0, 0, 1],
+			octaveShifts: [0, 0, -1, 0, 0, -1],
+			length: Time("2n.").toSeconds(),
 		});
-		firstMotif.setNoteNames(["C4", "E4", "G4", "F#4"]);
+		firstMotif.setNoteNames(["F5", "A4"]);
 
 		const secondMotif = new Motif({
-			times: ["1m", "1m", "1m", "1m"],
-			noteIndexes: [0, 1, 2, 1, 3],
-			velocities: [1, 0.5, 0.5],
-			harmonizations: [
-				[0, 4, 8],
-				[1, 5, 7],
-				[0, 4, 8],
-				[1, 3, 9],
-			],
+			times: ["4n", "8n", "8n", "4n"],
+			noteIndexes: [2],
+			octaveShifts: [-2],
 		});
-		secondMotif.setNoteNames(["C4", "E4", "G4", "F#4"]);
-		motifs.current.push(firstMotif, secondMotif);
+		secondMotif.setNoteNames(["G4"]);
+
+		const thirdMotif = new Motif({
+			times: ["8t", "8t", "8t"],
+			noteIndexes: [2, 0, 1, 2, 0, 1],
+			octaveShifts: [0, 0, -1, 0, 0, -1],
+		});
+		thirdMotif.setNoteNames(["F5", "A4"]);
+
+		motifs.current.push(firstMotif, secondMotif, thirdMotif);
+		//motifs.current.push(fourth);
+		/* const rootNotes = ["C4", "C5", "G4", "Eb4"];
+		const possibleTimes = ["2n", "8n", "4n", "8n."];
+		rootNotes.forEach((note) => {
+			const noteSeq = new NoteSequence(note);
+			//const intervals = [-1, 0, -5, -6, 5, 4];
+			const intervals = [-1, -1, -1, -1, -1];
+			intervals.forEach((interval) => noteSeq.repeat(interval));
+			const notes = noteSeq.sequence;
+
+			const motif = Generator.plainMotifFromNotes(notes);
+			const transformedMotifTimes = motif.times.map(() =>
+				getRandomItem(possibleTimes)
+			);
+			motif.times = transformedMotifTimes;
+
+			motifs.current.push(motif);
+		}); */
 
 		//motif.setNoteNames(notes);
 	};
 	useEffect(() => {
-		Transport.bpm.value = 100;
 		setupMotifs();
 	}, []);
 
@@ -181,4 +169,4 @@ const XYPadThree: React.FC = () => {
 	);
 };
 
-export default XYPadThree;
+export default RythmicPatchFour;
