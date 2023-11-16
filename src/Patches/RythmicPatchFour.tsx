@@ -116,6 +116,7 @@ const RythmicPatchFour: React.FC = () => {
 			noteIndexes: [0, 0, 1, 0, 0, 1],
 			octaveShifts: [0, 0, -1, 0, 0, -1],
 			length: Time("2n.").toSeconds(),
+			midi: { channel: 1 },
 		});
 		firstMotif.setNoteNames(["F5", "A4"]);
 
@@ -123,6 +124,7 @@ const RythmicPatchFour: React.FC = () => {
 			times: ["4n", "8n", "8n", "4n"],
 			noteIndexes: [2],
 			octaveShifts: [-2],
+			midi: { channel: 2 },
 		});
 		secondMotif.setNoteNames(["G4"]);
 
@@ -130,10 +132,21 @@ const RythmicPatchFour: React.FC = () => {
 			times: ["8t", "8t", "8t"],
 			noteIndexes: [2, 0, 1, 2, 0, 1],
 			octaveShifts: [0, 0, -1, 0, 0, -1],
+			midi: { channel: 3 },
 		});
 		thirdMotif.setNoteNames(["F5", "A4"]);
 
-		motifs.current.push(firstMotif, secondMotif, thirdMotif);
+		const fourthMotif = new Motif({
+			times: ["8t", "8t", "8t"],
+			noteIndexes: [1, 2, 0, 1, 2, 0],
+			octaveShifts: [0, 0, 0, 0, 0, 0],
+			midi: { channel: 4 },
+		});
+		fourthMotif.setNoteNames(["C5", "E5"]);
+
+		motifs.current.push(firstMotif, secondMotif, thirdMotif, fourthMotif);
+
+		//motifs.current.push(firstMotif, secondMotif, thirdMotif);
 		//motifs.current.push(fourth);
 		/* const rootNotes = ["C4", "C5", "G4", "Eb4"];
 		const possibleTimes = ["2n", "8n", "4n", "8n."];

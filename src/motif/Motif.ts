@@ -20,6 +20,9 @@ export type MotifOptions = {
 	velocities: Array<number>;
 	notesToPlayAtIndex: Array<Array<number>>;
 	length: number | undefined;
+	midi?: {
+		channel: number;
+	};
 };
 
 export type MotifPartOptions = {
@@ -53,6 +56,9 @@ class Motif {
 			harmonizations: [[0]],
 			velocities: [0.5],
 			length: undefined,
+			midi: {
+				channel: 1,
+			},
 		};
 
 		this._motif.times = motif?.times ?? [0];
@@ -62,6 +68,7 @@ class Motif {
 		this._motif.harmonizations = motif?.harmonizations ?? [[0]];
 		this._motif.velocities = motif?.velocities ?? [0.5];
 		this._motif.notesToPlayAtIndex = motif?.notesToPlayAtIndex ?? [[0]];
+		this._motif.midi = motif?.midi ?? { channel: 1 };
 		console.log(this._motif);
 
 		this._notes = new Notes();
@@ -330,6 +337,7 @@ class Motif {
 					time: lookAhead,
 					duration: note.duration,
 					velocity: note.velocity,
+					channel: this._motif.midi?.channel ?? 1,
 				});
 				console.log("Playing notes: ", notesToPlay);
 				console.log("Playing for duration: ", note.duration);
@@ -353,6 +361,7 @@ class Motif {
 					time: lookAhead,
 					duration: note.duration,
 					velocity: note.velocity,
+					channel: this._motif.midi?.channel ?? 1,
 				});
 				//console.log("Playing notes: ", notesToPlay);
 				console.log("Playing for duration: ", note.duration);

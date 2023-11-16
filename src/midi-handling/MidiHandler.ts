@@ -8,6 +8,7 @@ type MidiInfo = {
 	time: number;
 	duration: number;
 	velocity: number;
+	channel?: number;
 };
 
 class MidiHandler {
@@ -46,7 +47,8 @@ class MidiHandler {
 			if (typeof note === "number") {
 				// It's a number representing a note
 				const inRangeNote = note < 1 ? 1 : note > 127 ? 127 : note;
-				WebMidi.outputs[this._output].channels[1].playNote(inRangeNote, {
+				const channel = midiInfo.channel ? midiInfo.channel : this._channel;
+				WebMidi.outputs[this._output].channels[channel].playNote(inRangeNote, {
 					time: "+" + midiInfo.time * 1000,
 					duration: midiInfo.duration * 990,
 					attack: midiInfo.velocity * this.velocityFactor,
