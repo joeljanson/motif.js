@@ -20,6 +20,7 @@ export type MotifOptions = {
 	velocities: Array<number>;
 	notesToPlayAtIndex: Array<Array<number>>;
 	length: number | undefined;
+	notes?: Notes;
 	midi?: {
 		channel: number;
 	};
@@ -43,6 +44,7 @@ class Motif {
 	private _globalTransposition: number = 0;
 	private _key: Array<number>; // An array containing the pitchclasses in the current key
 	private _length: number | undefined;
+	private _loop: boolean = false;
 
 	public position: number;
 
@@ -56,6 +58,7 @@ class Motif {
 			harmonizations: [[0]],
 			velocities: [0.5],
 			length: undefined,
+			notes: new Notes(["C4"]),
 			midi: {
 				channel: 1,
 			},
@@ -68,10 +71,11 @@ class Motif {
 		this._motif.harmonizations = motif?.harmonizations ?? [[0]];
 		this._motif.velocities = motif?.velocities ?? [0.5];
 		this._motif.notesToPlayAtIndex = motif?.notesToPlayAtIndex ?? [[0]];
+		this._motif.notes = motif?.notes ?? new Notes(["C4"]);
 		this._motif.midi = motif?.midi ?? { channel: 1 };
 		console.log(this._motif);
 
-		this._notes = new Notes();
+		this._notes = this._motif.notes;
 		this._key = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 		this._length = motif?.length ?? undefined;
 
@@ -147,6 +151,14 @@ class Motif {
 
 	set transposition(transposition: number) {
 		this._globalTransposition = transposition;
+	}
+
+	set loop(loop: boolean) {
+		this._loop = loop;
+	}
+
+	get loop() {
+		return this._loop;
 	}
 
 	setKeyWithStrings(key: Array<string>) {
@@ -318,6 +330,7 @@ class Motif {
 			});
 			this._part.loopEnd = this.length;
 		}
+		this.updateNotesToPlayAtIndex();
 	}
 
 	start(startTime: number | string = 0) {
@@ -325,56 +338,30 @@ class Motif {
 		console.log(this._motif);
 		console.log(this._motif.notesToPlayAtIndex);
 		console.log(this.notesToPlayAtIndex[1]);
-		if (!this._part) {
-			this._part = new Part((time, note: MotifPartOptions) => {
-				// the notes given as the second element in the array
-				// will be passed in as the second argument
-				const lookAhead = 0.1 + (time - Transport.now());
-				const notesToPlay = this.notesToPlayAtIndex[note.index];
-				console.log("Notes to play", notesToPlay);
-				midiHandler.playNotes({
-					notes: notesToPlay,
-					time: lookAhead,
-					duration: note.duration,
-					velocity: note.velocity,
-					channel: this._motif.midi?.channel ?? 1,
-				});
-				console.log("Playing notes: ", notesToPlay);
-				console.log("Playing for duration: ", note.duration);
-				// console.log("Playing with velocity: ", 0.5);
-			}, this.motif);
-			this._part.start(
-				"+" + Time(startTime).toSeconds() + Time(this.position).toSeconds()
-			);
-			this._part.loop = true;
-			//this._part.loop = loop;
-			this._part.loopEnd = this.length;
-			Transport.start();
-		} else {
-			this._part = new Part((time, note: MotifPartOptions) => {
-				// the notes given as the second element in the array
-				// will be passed in as the second argument
-				const lookAhead = 0.1 + time - now();
-				const notesToPlay = this.notesToPlayAtIndex[note.index];
-				midiHandler.playNotes({
-					notes: notesToPlay,
-					time: lookAhead,
-					duration: note.duration,
-					velocity: note.velocity,
-					channel: this._motif.midi?.channel ?? 1,
-				});
-				//console.log("Playing notes: ", notesToPlay);
-				console.log("Playing for duration: ", note.duration);
-				// console.log("Playing with velocity: ", 0.5);
-			}, this.motif);
-			this._part.start(
-				"+" + Time(startTime).toSeconds() + Time(this.position).toSeconds()
-			);
-			this._part.loop = true;
-			//this._part.loop = loop;
-			this._part.loopEnd = this.length;
-			Transport.start();
-		}
+		this._part = new Part((time, note: MotifPartOptions) => {
+			// the notes given as the second element in the array
+			// will be passed in as the second argument
+			const lookAhead = 0.1 + (time - Transport.now());
+			const notesToPlay = this.notesToPlayAtIndex[note.index];
+			console.log("Notes to play", notesToPlay);
+			midiHandler.playNotes({
+				notes: notesToPlay,
+				time: lookAhead,
+				duration: note.duration,
+				velocity: note.velocity,
+				channel: this._motif.midi?.channel ?? 1,
+			});
+			console.log("Playing notes: ", notesToPlay);
+			console.log("Playing for duration: ", note.duration);
+			// console.log("Playing with velocity: ", 0.5);
+		}, this.motif);
+		this._part.start(
+			"+" + Time(startTime).toSeconds() + Time(this.position).toSeconds()
+		);
+		this._part.loop = this._loop;
+		//this._part.loop = loop;
+		this._part.loopEnd = this.length;
+		Transport.start();
 	}
 	stop() {
 		if (this._part) {

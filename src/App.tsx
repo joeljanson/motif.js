@@ -11,6 +11,7 @@ import RythmicPatchTwo from "./Patches/RythmicPatchTwo";
 import RythmicPatchThree from "./Patches/RythmicPatchThree";
 import XYPadFour from "./Patches/XYPadFour";
 import RythmicPatchFour from "./Patches/RythmicPatchFour";
+import BerlinProgression from "./Patches/BerlinProgression";
 
 function App() {
 	useEffect(() => {
@@ -26,7 +27,8 @@ function App() {
 				{/* <RythmicPatch></RythmicPatch> */}
 				{/* <RythmicPatchTwo></RythmicPatchTwo> */}
 				{/* <RythmicPatchThree></RythmicPatchThree> */}
-				<RythmicPatchFour></RythmicPatchFour>
+				{/* <RythmicPatchFour></RythmicPatchFour> */}
+				<BerlinProgression />
 				<LogicController />
 			</header>
 		</div>
