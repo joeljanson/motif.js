@@ -42,17 +42,24 @@ class MidiHandler {
 	}
 
 	public playNotes(midiInfo: MidiInfo) {
-		console.log("midiInfo: ", midiInfo);
+		//console.log("midiInfo: ", midiInfo);
 		midiInfo.notes.forEach((note: number | string) => {
 			if (typeof note === "number") {
 				// It's a number representing a note
-				const inRangeNote = note < 1 ? 1 : note > 127 ? 127 : note;
-				const channel = midiInfo.channel ? midiInfo.channel : this._channel;
-				WebMidi.outputs[this._output].channels[channel].playNote(inRangeNote, {
-					time: "+" + midiInfo.time * 1000,
-					duration: midiInfo.duration * 990,
-					attack: midiInfo.velocity * this.velocityFactor,
-				});
+				if (note === 0) {
+					console.log("Note represents a rest.");
+				} else {
+					const inRangeNote = note < 1 ? 1 : note > 127 ? 127 : note;
+					const channel = midiInfo.channel ? midiInfo.channel : this._channel;
+					WebMidi.outputs[this._output].channels[channel].playNote(
+						inRangeNote,
+						{
+							time: "+" + midiInfo.time * 1000,
+							duration: midiInfo.duration * 990,
+							attack: midiInfo.velocity * this.velocityFactor,
+						}
+					);
+				}
 			} else if (typeof note === "string" && note === ".") {
 				// It's a string representing a rest
 				console.log("Note represents a rest.");

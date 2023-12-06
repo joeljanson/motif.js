@@ -12,6 +12,9 @@ import RythmicPatchThree from "./Patches/RythmicPatchThree";
 import XYPadFour from "./Patches/XYPadFour";
 import RythmicPatchFour from "./Patches/RythmicPatchFour";
 import BerlinProgression from "./Patches/BerlinProgression";
+import Ebm from "./Patches/Ebm";
+import Rythmic from "./Patches/Rythmic";
+import Patterns from "./Patches/Patterns";
 
 function App() {
 	useEffect(() => {
@@ -28,7 +31,10 @@ function App() {
 				{/* <RythmicPatchTwo></RythmicPatchTwo> */}
 				{/* <RythmicPatchThree></RythmicPatchThree> */}
 				{/* <RythmicPatchFour></RythmicPatchFour> */}
-				<BerlinProgression />
+				{/* <BerlinProgression /> */}
+				{/* <Ebm /> */}
+				{/* <Rythmic></Rythmic> */}
+				<Patterns />
 				<LogicController />
 			</header>
 		</div>

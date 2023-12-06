@@ -1,3 +1,11 @@
+// Defining interfaces and utility functions used by the patches
+
+export interface NotePattern {
+	times: string[];
+	noteIndexes: number[];
+	transpositions: number[];
+}
+
 export function interpolateWeights(
 	weights: number[],
 	targetLength: number
@@ -26,7 +34,7 @@ export function interpolateWeights(
 
 export function getRandomValues<T>(
 	length: number,
-	values: T[],
+	values: (T | T[])[],
 	weights?: number[]
 ): T[] {
 	let adjustedWeights: number[];
@@ -36,7 +44,6 @@ export function getRandomValues<T>(
 	} else if (weights) {
 		adjustedWeights = weights;
 	} else {
-		// If no weights are provided, assign equal weights
 		adjustedWeights = new Array(values.length).fill(1);
 	}
 
@@ -48,11 +55,60 @@ export function getRandomValues<T>(
 		for (let j = 0; j < adjustedWeights.length; j++) {
 			randomNum -= adjustedWeights[j];
 			if (randomNum <= 0) {
-				result.push(values[j]);
+				const value = values[j];
+				if (Array.isArray(value)) {
+					// Flatten and push the entire array as a single entity
+					result.push(...(value as T[]));
+				} else {
+					result.push(value as T);
+				}
 				break;
 			}
 		}
 	}
 
 	return result;
+}
+
+export function getRandomPatterns(
+	length: number,
+	patterns: NotePattern[],
+	weights?: number[]
+): NotePattern {
+	// Similar weight adjustment logic as before
+	let adjustedWeights: number[];
+
+	if (weights && patterns.length !== weights.length) {
+		adjustedWeights = interpolateWeights(weights, patterns.length);
+	} else if (weights) {
+		adjustedWeights = weights;
+	} else {
+		adjustedWeights = new Array(patterns.length).fill(1);
+	}
+
+	const totalWeight = adjustedWeights.reduce((acc, weight) => acc + weight, 0);
+	let result: NotePattern = { times: [], noteIndexes: [], transpositions: [] };
+
+	for (let i = 0; i < length; i++) {
+		let randomNum = Math.random() * totalWeight;
+		for (let j = 0; j < adjustedWeights.length; j++) {
+			randomNum -= adjustedWeights[j];
+			if (randomNum <= 0) {
+				// Concatenate the selected NotePattern to the result
+				result.times = result.times.concat(patterns[j].times);
+				result.noteIndexes = result.noteIndexes.concat(patterns[j].noteIndexes);
+				result.transpositions = result.transpositions.concat(
+					patterns[j].transpositions
+				);
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+export function repeatValues(length: number, values: string[]): string[] {
+	const repeatedValues = Array.from({ length }, () => values).flat();
+	return repeatedValues;
 }
