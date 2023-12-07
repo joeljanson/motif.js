@@ -10,7 +10,7 @@ import {
 
 const Patterns: React.FC = () => {
 	useEffect(() => {
-		Transport.bpm.value = 120;
+		Transport.bpm.value = 60;
 
 		const chordArray = createChordArray();
 		console.log(chordArray);
@@ -31,13 +31,9 @@ const Patterns: React.FC = () => {
 		/* chordArray.push(["C", "E", "G", "D", "F"]); */
 		const array = [
 			["Eb", "G", "Bb", "D", "F"],
-			["Db", "B", "Ab", "F", "G", "Db", "B", "Ab", "F", "G"],
-			["C", "D", "E", "F", "G", "B", "A"],
-			["D", "E", "F", "A", "C"],
-			["Ab", "C", "Eb", "G", "Bb"],
 			["Bb", "Eb"],
 		];
-		return chordArray;
+		return array;
 	};
 
 	const handleClick = () => {
@@ -101,8 +97,8 @@ const Patterns: React.FC = () => {
 		loop.loopEnd = "4:0";
 
 		motifOne.start();
-		motifTwo.start();
-		motifTwo.transposition = -7;
+		/* motifTwo.start();
+		motifTwo.transposition = -7; */
 		/* motifThree.start();
 		motifFour.start(); */
 	};
@@ -139,15 +135,25 @@ const Patterns: React.FC = () => {
 				noteIndexes: [0, 0, 0, 0, 0, 0, 0, 0],
 				transpositions: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 			}, */
-			{
+			/* {
 				times: ["16n", "8n", "16n", "16n", "8n", "16n"],
 				noteIndexes: [0, 1, 2, 3, 4, 5],
 				transpositions: [-12, -12, -12, -12, -12, -12],
+			}, */
+			{
+				times: ["8n", "8n", "8n"],
+				noteIndexes: [-1, 1, 2],
+				transpositions: [0, -1, 0],
 			},
 			{
 				times: ["8n", "8n", "8n"],
-				noteIndexes: [1, 1, 2],
-				transpositions: [0, -1, 0],
+				noteIndexes: [0, 1, 1],
+				transpositions: [0, -2, 0],
+			},
+			{
+				times: ["4n", "8n"],
+				noteIndexes: [0, 3, 2],
+				transpositions: [-12, 0, 0],
 			},
 			/* {
 				times: ["16n", "16n", "16n", "16n", "16n", "16n", "16n", "16n"],
@@ -229,7 +235,7 @@ const Patterns: React.FC = () => {
 			times: pattern.times,
 			noteIndexes: pattern.noteIndexes,
 			transpositions: pattern.transpositions,
-			//harmonizations: [[0], [0], [0], [0, -7], [0, 8, -5], [0, 2, -6], [0]],
+			/* harmonizations: [[0], [0], [0], [0, -7], [0, -7], [0, -6], [0]], */
 			midi: { channel: channel },
 		});
 		//motif.setNoteNames(getRandomValues(125, concatNotes, [1, 0.5]));

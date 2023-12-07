@@ -1,84 +1,42 @@
-import { Part, Transport } from "tone";
-import Notes from "./Notes";
-import Motif, { MotifPartOptions } from "./Motif";
+import { Part } from "tone";
+import Motif from "./Motif";
 
-export type PhrasePart = {
-	time: number;
-	index: number;
-};
+// Define the structure of the object expected by the constructor
+type PhraseConstructorArg = {
+	time: number | string;
+	chord: string[];
+	key: string[];
+}[];
 
 class Phrase {
-	private _motifs: Array<Motif>;
-	private _part: Part | undefined;
+	private sequence: PhraseConstructorArg;
+	private motifs: Motif[] = [];
+	private part: Part<any>;
 
-	constructor() {
-		this._motifs = [];
+	constructor(sequence: PhraseConstructorArg, length: number | string) {
+		this.sequence = sequence;
+
+		// Setup the Tone.js part with the provided sequence
+		this.part = new Part((time, object) => {
+			// Handle the note playing logic here
+			// For example, triggering a synth or sampler
+			this.motifs.forEach((motif) => {
+				motif.setNoteNames(object.chord);
+				motif.setKeyWithStrings(object.key);
+			});
+		}, this.sequence);
+		this.part.loop = true;
+		this.part.loopEnd = length;
 	}
 
-	addMotif(motif: Motif) {
-		motif.position = this.length;
-		console.log("Phrase length: ", this.length);
-		this._motifs.push(motif);
+	add(motif: Motif): void {
+		this.motifs.push(motif);
 	}
 
-	get phrase(): PhrasePart[] {
-		// Assuming all arrays in _motifs have the same length
-		if (this._motifs) {
-			return this._motifs
-				.map((motif, index) => {
-					return { time: motif.position, index: index };
-				})
-				.flat();
-		}
-		return [];
-	}
-
-	get length() {
-		if (this._motifs) {
-			return this._motifs.reduce((acc, motif) => {
-				// Calculate the length of each individual rhythm and add it to the accumulator
-				const rhythmLength = motif.motif.reduce(
-					(rhythmAcc, value) => rhythmAcc + value.duration,
-					0
-				);
-				return acc + rhythmLength;
-			}, 0);
-		}
-		return 0;
-	}
-
-	setNotesFromNoteNames(notes: Array<string>) {
-		if (this._motifs) {
-			this._motifs.forEach((motif) => (motif.notes.notenames = notes));
-		}
-	}
-
-	set notes(notes: Notes) {
-		if (this._motifs) {
-			this._motifs.forEach((motif) => (motif.notes = notes));
-		}
-	}
-
-	get notes(): Notes {
-		return this._motifs.map((motif) => motif.notes)[0];
-	}
-
-	get key(): Array<number> {
-		return this._motifs.map((motif) => motif.key)[0];
-	}
-
-	startPhrase(loop: boolean) {
-		if (!this._part) {
-			this._part = new Part((time, part: PhrasePart) => {
-				console.log("Starttime for motif:", part);
-				const motif = this._motifs[part.index];
-				motif.start(0.1);
-			}, this.phrase);
-			this._part.start();
-			this._part.loop = loop;
-			this._part.loopEnd = this.length;
-			Transport.start();
-		}
+	start(time: string | number = 0): void {
+		this.part.start(time);
+		console.log("motifs: ", this.motifs);
+		this.motifs.forEach((motif) => motif.start(time));
 	}
 }
 

@@ -15,6 +15,7 @@ import BerlinProgression from "./Patches/BerlinProgression";
 import Ebm from "./Patches/Ebm";
 import Rythmic from "./Patches/Rythmic";
 import Patterns from "./Patches/Patterns";
+import Phrases from "./Patches/Phrases";
 
 function App() {
 	useEffect(() => {
@@ -34,7 +35,8 @@ function App() {
 				{/* <BerlinProgression /> */}
 				{/* <Ebm /> */}
 				{/* <Rythmic></Rythmic> */}
-				<Patterns />
+				{/* <Patterns /> */}
+				<Phrases />
 				<LogicController />
 			</header>
 		</div>

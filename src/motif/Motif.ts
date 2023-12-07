@@ -180,6 +180,9 @@ class Motif {
 				// Determine the note index and calculate the MIDI note to play
 				const noteIndex =
 					this._motif.noteIndexes[index % this._motif.noteIndexes.length];
+				if (noteIndex < 0) {
+					return [0];
+				}
 				const midiNoteToPlay =
 					this.notes.notesAsMidi[noteIndex % this.notes.notesAsMidi.length];
 				const midiNoteChroma = midiNoteToPlay % 12;
@@ -192,7 +195,8 @@ class Motif {
 							12 +
 						this._motif.transpositions[
 							index % this._motif.transpositions.length
-						];
+						] +
+						this._globalTransposition;
 
 					// Calculate the harmonized notes
 					const harmonizedNotes = this._motif.harmonizations[

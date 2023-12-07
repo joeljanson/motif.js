@@ -92,7 +92,7 @@ function FirstTestPatch() {
 	const handleHover = (value: Array<string>) => {
 		// setHoveredValue(value);
 		if (phrase.current) {
-			phrase.current.setNotesFromNoteNames(value);
+			//phrase.current.setNotesFromNoteNames(value);
 		}
 		if (motifs.current) {
 			console.log(motifs.current);
