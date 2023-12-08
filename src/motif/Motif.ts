@@ -189,20 +189,29 @@ class Motif {
 
 				if (midiNoteChroma != null) {
 					// Calculate the final MIDI note
+					const internalTransposition =
+						this._motif.transpositions[
+							index % this._motif.transpositions.length
+						];
+
 					const finalMidiNote =
 						midiNoteToPlay +
 						this._motif.octaveShifts[index % this._motif.octaveShifts.length] *
 							12 +
-						this._motif.transpositions[
-							index % this._motif.transpositions.length
-						] +
 						this._globalTransposition;
 
+					const finalFinalMidiNote = this.transposePitch(
+						finalMidiNote,
+						internalTransposition,
+						this._key
+					);
+					//console.log("Final midi note: ", finalMidiNote);
+					//console.log("finalFinalMidiNote: ", finalFinalMidiNote);
 					// Calculate the harmonized notes
 					const harmonizedNotes = this._motif.harmonizations[
 						index % this._motif.harmonizations.length
 					].map((note) => {
-						let harmonizedNote = note + finalMidiNote;
+						let harmonizedNote = note + finalFinalMidiNote;
 						let pitchClass = harmonizedNote % 12;
 
 						// Check if the pitch class is in the key
@@ -221,6 +230,51 @@ class Motif {
 				}
 			}
 		);
+	}
+
+	transposePitch(pitch: number, transposition: number, key: number[]): number {
+		// Sort the key array to ensure pitches are in order
+		let sortedKey = [...key].sort((a, b) => a - b);
+
+		// Convert pitch to pitch class (0-11)
+		let pitchClass = pitch % 12;
+
+		// Find the pitch class in the sorted key
+		let index = sortedKey.indexOf(pitchClass);
+		if (index === -1) {
+			pitchClass = this.findClosestPitchClass(pitchClass, this._key);
+			index = sortedKey.indexOf(pitchClass);
+		}
+
+		// Calculate the new index in the sorted key
+		let newIndex =
+			(index + transposition + sortedKey.length) % sortedKey.length;
+
+		// Calculate the new pitch class
+		let newPitchClass = sortedKey[newIndex];
+
+		// Calculate octave adjustment
+		let octaveAdjustment = Math.floor(
+			(index + transposition) / sortedKey.length
+		);
+
+		// Calculate and return the new pitch
+		return pitch + (newPitchClass - pitchClass) + octaveAdjustment * 12;
+	}
+
+	findClosestPitchClassIndex(pitchClass: number, key: Array<number>) {
+		let closestIndex = 0;
+		let smallestDiff = Math.abs(key[0] - pitchClass);
+
+		key.forEach((k, index) => {
+			let diff = Math.abs(k - pitchClass);
+			if (diff < smallestDiff) {
+				smallestDiff = diff;
+				closestIndex = index;
+			}
+		});
+
+		return closestIndex;
 	}
 
 	findClosestPitchClass(pitchClass: number, key: Array<number>): number {
@@ -290,6 +344,7 @@ class Motif {
 			// will be passed in as the second argument
 			const lookAhead = 0.1 + (time - Transport.now());
 			const notesToPlay = this.notesToPlayAtIndex[note.index];
+
 			midiHandler.playNotes({
 				notes: notesToPlay,
 				time: lookAhead,

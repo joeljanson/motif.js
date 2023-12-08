@@ -8,50 +8,68 @@ import {
 	repeatValues,
 } from "./Utils";
 import Phrase from "../motif/Phrase";
+import { Scale } from "tonal";
 
 const Phrases: React.FC = () => {
 	useEffect(() => {
 		Transport.bpm.value = 120;
+		console.log(Scale.get("C major").notes);
 	});
 
 	const handleClick = () => {
 		//const rootNotes = ["Eb", "D", "Db", "C", "B"];
+
 		const rootNotes = ["Eb", "F", "G", "Ab", "Bb", "C", "D"];
 
 		const phrase = new Phrase(
 			[
 				{
 					time: 0,
-					chord: ["Eb3", "G4", "Ab4"],
-					key: ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+					chord: ["Eb3", "G4", "Bb4", "D5"],
+					key: "Eb major",
 				},
 				{
-					time: "2n.",
-					chord: ["C3", "Eb4", "G4"],
-					key: ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+					time: "2:3:1",
+					chord: ["Ab3", "C4"],
+					key: "C major",
 				},
 				{
-					time: "2m",
-					chord: ["D3", "C4", "G4"],
-					key: ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+					time: "5:4:1",
+					chord: ["F3", "G4"],
+					key: "Ab major",
 				},
 				{
-					time: "3m",
-					chord: ["Ab2", "C4", "Eb4", "G3"],
-					key: ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+					time: "8:1:3",
+					chord: ["E3", "F#4"],
+					key: "Eb major",
+				},
+				{
+					time: "10:2:0",
+					chord: ["C5", "Ab6"],
+					key: "Eb major",
 				},
 			],
-			"4m"
+			"11m"
 		);
-		const motifOne = createMotif(rootNotes, 1);
+		const motifOne = createMotif(["Eb3", "G4", "Ab4", "Bb4"], 1);
 		motifOne.transposition = 12;
 		const motifTwo = createMotif(rootNotes, 2);
+		const motifThree = createMotif(rootNotes, 3);
+		const motifFour = createMotif(rootNotes, 4);
+		const motifFive = createMotif(rootNotes, 5);
 		motifTwo.harmonizations = [[0]];
-		motifOne.transposition = 17;
+		motifOne.transposition = 15;
+		motifThree.transposition = 19;
+		motifFour.transposition = -7;
+		motifFour.transposition = -12;
 
 		phrase.add(motifOne);
 		phrase.add(motifTwo);
+		phrase.add(motifThree);
+		phrase.add(motifFour);
+		phrase.add(motifFive);
 		phrase.start();
+		//motifOne.start();
 	};
 
 	const createMotif = (notes: string[], channel: number, times?: string[]) => {
@@ -60,7 +78,7 @@ const Phrases: React.FC = () => {
 			: getRandomValues(30, ["2n", "2n", "2n.", "1m", "4n"], [1.5, 1]);
 
 		const pattern = getRandomPatterns(20, [
-			{
+			/* {
 				times: ["4n", "8n"],
 				noteIndexes: [0, 2],
 				transpositions: [0, -2],
@@ -69,17 +87,27 @@ const Phrases: React.FC = () => {
 				times: ["4n", "8n"],
 				noteIndexes: [-1, 2],
 				transpositions: [7, -7],
+			}, */
+			{
+				times: ["8n", "8n", "8n", "8n"],
+				noteIndexes: [0, 0, 0, 0],
+				transpositions: [0, -1, -2, -3],
 			},
 			{
-				times: ["8n", "8n", "8n"],
-				noteIndexes: [-1, 1, 2],
-				transpositions: [0, 0, 3],
+				times: ["8n", "8n", "8n", "8n"],
+				noteIndexes: [1, 1, 1, 1],
+				transpositions: [0, 1, 2, 3],
 			},
 			{
+				times: ["8n", "8n", "8n", "8n"],
+				noteIndexes: [0, 0, 0, 0],
+				transpositions: [0, 1, 0, 5],
+			},
+			/* {
 				times: ["8n", "8n", "8n"],
-				noteIndexes: [0, 1, 2],
+				noteIndexes: [1, 1, 1],
 				transpositions: [0, 0, 0],
-			},
+			}, */
 		]);
 		console.log("The pattern is: ", pattern);
 
@@ -87,7 +115,7 @@ const Phrases: React.FC = () => {
 			times: pattern.times,
 			noteIndexes: pattern.noteIndexes,
 			transpositions: pattern.transpositions,
-			/* harmonizations: [[0], [0], [0], [0, -7], [0, -7], [0, -6], [0]], */
+			harmonizations: [[0], [0], [0], [0, -7], [0, -7], [0, -6], [0]],
 			midi: { channel: channel },
 		});
 		motif.setNoteNames(notes);
