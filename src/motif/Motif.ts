@@ -258,6 +258,16 @@ class Motif {
 			(index + transposition) / sortedKey.length
 		);
 
+		if (isNaN(pitch + (newPitchClass - pitchClass) + octaveAdjustment * 12)) {
+			/* console.log("key: ", key);
+			console.log("pitch: ", pitch);
+			console.log("newIndex: ", newIndex);
+			console.log("sortedKey: ", sortedKey);
+			console.log("newPitchClass: ", newPitchClass);
+			console.log("pitchClass: ", pitchClass);
+			console.log("octaveAdjustment: ", octaveAdjustment);
+			console.log("index: ", index); */
+		}
 		// Calculate and return the new pitch
 		return pitch + (newPitchClass - pitchClass) + octaveAdjustment * 12;
 	}

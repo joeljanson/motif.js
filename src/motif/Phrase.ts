@@ -1,6 +1,6 @@
 import { Part } from "tone";
 import Motif from "./Motif";
-import { Chord, Scale } from "tonal";
+import { Chord, Note, Scale } from "tonal";
 
 // Define the structure of the object expected by the constructor
 type PhraseConstructorArg = {
@@ -27,7 +27,8 @@ class Phrase {
 			if (Array.isArray(object.key)) {
 				key = object.key;
 			} else {
-				key = Scale.get(object.key).notes;
+				key = Scale.get(object.key).notes.map((note) => Note.simplify(note));
+				console.log("chroma: ", key);
 			}
 			let chord: string[] = [];
 			if (Array.isArray(object.chord)) {
@@ -43,9 +44,10 @@ class Phrase {
 			}
 			this.motifs.forEach((motif) => {
 				motif.setNoteNames(chord);
-				console.log("Updated chord");
+				//console.log("Updated chord");
 				motif.setKeyWithStrings(key);
-				console.log("Updated key");
+				//console.log("Updated key");
+				/* console.log("motif: ", motif.notes); */
 			});
 		}, this.sequence);
 		this.part.loop = true;

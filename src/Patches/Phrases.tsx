@@ -32,21 +32,21 @@ const Phrases: React.FC = () => {
 				{
 					time: "2:3:1",
 					chord: "Abmaj7",
-					key: "Eb minor",
-				},
-				{
-					time: "5:4:1",
-					chord: ["F3", "G4"],
-					key: "Ab major",
-				},
-				{
-					time: "8:1:3",
-					chord: ["E3", "F#4"],
 					key: "Eb major",
 				},
 				{
+					time: "5:4:1",
+					chord: "Fmin7",
+					key: "Eb major",
+				},
+				{
+					time: "8:1:3",
+					chord: ["E4", "F#4"],
+					key: "E major",
+				},
+				{
 					time: "10:2:0",
-					chord: ["C5", "Ab6"],
+					chord: ["C4", "Ab4"],
 					key: "Eb major",
 				},
 			],
@@ -58,11 +58,11 @@ const Phrases: React.FC = () => {
 		const motifThree = createMotif(rootNotes, 3);
 		const motifFour = createMotif(rootNotes, 4);
 		const motifFive = createMotif(rootNotes, 5);
-		motifTwo.harmonizations = [[0]];
-		motifOne.transposition = 15;
+		//motifTwo.harmonizations = [[0]];
+		motifTwo.transposition = 15;
 		motifThree.transposition = 19;
 		motifFour.transposition = -7;
-		motifFour.transposition = -12;
+		motifFive.transposition = -12;
 
 		phrase.add(motifOne);
 		phrase.add(motifTwo);
@@ -90,20 +90,25 @@ const Phrases: React.FC = () => {
 				transpositions: [7, -7],
 			}, */
 			{
-				times: ["8n", "8n", "8n", "8n"],
-				noteIndexes: [0, 0, 0, 0],
-				transpositions: [0, -1, -2, -3],
+				times: ["8n", "8n", "8n", "8n", "8n"],
+				noteIndexes: [-1, 1, 4, 3, 2],
+				transpositions: [0, -1, 0, -1, 0],
 			},
-			{
+			/* {
+				times: ["8n", "8n", "8n", "8n", "8n"],
+				noteIndexes: [-1, 3, 3, 2, 2],
+				transpositions: [0, 0, 0, 0, 0],
+			}, */
+			/* {
 				times: ["8n", "8n", "8n", "8n"],
 				noteIndexes: [1, 1, 1, 1],
-				transpositions: [0, 1, 2, 3],
+				transpositions: [0, 0, 0, 0],
 			},
 			{
 				times: ["8n", "8n", "8n", "8n"],
-				noteIndexes: [0, 0, 0, 0],
-				transpositions: [0, 1, 0, 5],
-			},
+				noteIndexes: [3, 2, 2, 3],
+				transpositions: [0, 0, 0, 0],
+			}, */
 			/* {
 				times: ["8n", "8n", "8n"],
 				noteIndexes: [1, 1, 1],
@@ -116,12 +121,23 @@ const Phrases: React.FC = () => {
 			times: pattern.times,
 			noteIndexes: pattern.noteIndexes,
 			transpositions: pattern.transpositions,
-			harmonizations: [[0], [0], [0], [0, -7], [0, -7], [0, -6], [0]],
+			/* harmonizations: [
+				[0, -7],
+				[0, -7],
+				[0, -7],
+				[0, -7],
+				[0, -6],
+				[0, -5],
+				[0, -4],
+				[0, -3],
+				[0, -2],
+				[0, -1],
+			], */
 			midi: { channel: channel },
 		});
 		motif.setNoteNames(notes);
 		motif.loop = true;
-		//motif.octaveShifts = getRandomValues(24, [0, 1, -1], [1, 0.5]);
+		/* motif.octaveShifts = getRandomValues(24, [0, 1, -1], [1, 0.5]); */
 		/* motif.octaveShifts = [
 			1, 0.8, 0.7, 0.5, 0.4, 0.2, 0.1, 0, -0.1, -0.15, -0.2, -0.25, -0.3, -0.35,
 			-0.4, -0.45, -0.5, -0.55, -0.6, -0.65, -0.7,
