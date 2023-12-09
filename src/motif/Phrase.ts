@@ -5,7 +5,7 @@ import { Chord, Scale } from "tonal";
 // Define the structure of the object expected by the constructor
 type PhraseConstructorArg = {
 	time: number | string;
-	chord: string[];
+	chord: string[] | string;
 	key: string[] | string;
 }[];
 
@@ -13,10 +13,12 @@ class Phrase {
 	private sequence: PhraseConstructorArg;
 	private motifs: Motif[] = [];
 	private part: Part<any>;
+	private key: Array<number>; // Pitch classes in the current key
 
 	constructor(sequence: PhraseConstructorArg, length: number | string) {
 		this.sequence = sequence;
 
+		this.key = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; // Chromatic scale
 		// Setup the Tone.js part with the provided sequence
 		this.part = new Part((time, object) => {
 			// Handle the note playing logic here
@@ -31,7 +33,13 @@ class Phrase {
 			if (Array.isArray(object.chord)) {
 				chord = object.chord;
 			} else {
-				chord = Chord.get(object.chord).notes;
+				//chord = Chord.get(object.chord).notes;
+				const internalChord = Chord.get(object.chord);
+				chord = Chord.getChord(
+					internalChord.aliases[0],
+					internalChord.tonic + "4",
+					internalChord.tonic + "4"
+				).notes;
 			}
 			this.motifs.forEach((motif) => {
 				motif.setNoteNames(chord);

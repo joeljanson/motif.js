@@ -25,13 +25,14 @@ const Phrases: React.FC = () => {
 			[
 				{
 					time: 0,
-					chord: ["Eb3", "G4", "Bb4", "D5"],
+					//chord: ["Eb3", "G4", "Bb4", "D5"],
+					chord: "Ebmaj7",
 					key: "Eb major",
 				},
 				{
 					time: "2:3:1",
-					chord: ["Ab3", "C4"],
-					key: "C major",
+					chord: "Abmaj7",
+					key: "Eb minor",
 				},
 				{
 					time: "5:4:1",
