@@ -1,42 +1,179 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import LogicController from "./LogicController";
-import FirstTestPatch from "./Patches/FirstTestPatch";
-import XYPad from "./Patches/XYPad";
-import XYPadTwo from "./Patches/XYPadTwo";
-import XYPadThree from "./Patches/XYPadThree";
-import { Transport } from "tone";
-import RythmicPatch from "./Patches/RythmicPatch";
-import RythmicPatchTwo from "./Patches/RythmicPatchTwo";
-import RythmicPatchThree from "./Patches/RythmicPatchThree";
-import XYPadFour from "./Patches/XYPadFour";
-import RythmicPatchFour from "./Patches/RythmicPatchFour";
-import BerlinProgression from "./Patches/BerlinProgression";
-import Ebm from "./Patches/Ebm";
-import Rythmic from "./Patches/Rythmic";
-import Patterns from "./Patches/Patterns";
-import Phrases from "./Patches/Phrases";
+import {
+	getRandomValues,
+	getSlidingRange,
+	getUniqueRandomValues,
+	repeatValues,
+} from "./Patches/Utils";
+import BendablePatch, { BendablePatchProps } from "./Patches/BendablePatch";
+import TranspositionsOverride from "./TranspositionsOverride";
+import RootNotesOverride from "./RootNotesOverride";
+import RythmsOverride from "./RythmsOverride";
+import {
+	initialHarmonyPatches,
+	initialMelodyPatches,
+	initialTexturePatches,
+	initialotherPatches,
+} from "./Patches";
+
+interface OverrideState {
+	bpm: { isActive: boolean; value: number };
+	rootNotes: { isActive: boolean; value: string[] };
+	times: { isActive: boolean; value: string[] };
+	noteIndexes: { isActive: boolean; value: number[] };
+	transpositions: { isActive: boolean; value: number[] };
+	harmonizations: { isActive: boolean; value: number[][] };
+}
+
+export interface PatchCategories {
+	title: string;
+	patches: BendablePatchProps[];
+}
+
+const patchCategories: PatchCategories[] = [
+	{
+		title: "Harmonies",
+		patches: initialHarmonyPatches,
+	},
+	{
+		title: "Melodies",
+		patches: initialMelodyPatches,
+	},
+	{
+		title: "Textures",
+		patches: initialTexturePatches,
+	},
+	{
+		title: "Other",
+		patches: initialotherPatches,
+	},
+];
 
 function App() {
-	useEffect(() => {
-		//Transport.bpm.value = 120;
-	});
+	/* const [bendablePatches, setBendablePatches] =
+		useState<BendablePatchProps[]>(initialPatches); */
+	const [rootNotesOverride, setRootNotesOverride] = useState<{
+		isActive: boolean;
+		value: string[];
+	}>({ isActive: false, value: [] });
+	const [transpositionsOverride, setTranspositionsOverride] = useState<{
+		isActive: boolean;
+		value: string[];
+	}>({ isActive: false, value: [] });
+	const [rythmsOverride, setRythmsOverride] = useState<{
+		isActive: boolean;
+		value: string[];
+	}>({ isActive: false, value: [] });
+
 	return (
 		<div className="App">
 			<header className="App-header">
-				{/* <FirstTestPatch></FirstTestPatch> */}
-				{/* <XYPadThree></XYPadThree> */}
-				{/* <XYPadFour></XYPadFour> */}
-				{/* <XYPadTwo></XYPadTwo> */}
-				{/* <RythmicPatch></RythmicPatch> */}
-				{/* <RythmicPatchTwo></RythmicPatchTwo> */}
-				{/* <RythmicPatchThree></RythmicPatchThree> */}
-				{/* <RythmicPatchFour></RythmicPatchFour> */}
-				{/* <BerlinProgression /> */}
-				{/* <Ebm /> */}
-				{/* <Rythmic></Rythmic> */}
-				{/* <Patterns /> */}
-				<Phrases />
+				<div className="override-controls">
+					<RootNotesOverride
+						isActive={rootNotesOverride.isActive}
+						value={rootNotesOverride.value}
+						label="Override Root Notes"
+						setActive={(isActive) =>
+							setRootNotesOverride((prev) => ({ ...prev, isActive }))
+						}
+						setValue={(value) =>
+							setRootNotesOverride((prev) => ({
+								...prev,
+								value: value,
+							}))
+						}
+					/>
+					<TranspositionsOverride
+						isActive={transpositionsOverride.isActive}
+						value={transpositionsOverride.value}
+						label="Override transpositions"
+						setActive={(isActive) =>
+							setTranspositionsOverride((prev) => ({ ...prev, isActive }))
+						}
+						setValue={(value) =>
+							setTranspositionsOverride((prev) => ({
+								...prev,
+								value: value,
+							}))
+						}
+					/>
+					<RythmsOverride
+						isActive={rythmsOverride.isActive}
+						value={rythmsOverride.value}
+						label="Override rythms"
+						setActive={(isActive) =>
+							setRythmsOverride((prev) => ({ ...prev, isActive }))
+						}
+						setValue={(value) =>
+							setRythmsOverride((prev) => ({
+								...prev,
+								value: value,
+							}))
+						}
+					/>
+				</div>
+				<div className="patch-buttons">
+					{patchCategories.map((category, index) => (
+						<div className="category">
+							<div>{category.title}</div>
+							{category.patches.map((patch, index) => (
+								<BendablePatch
+									key={index}
+									title={patch.title}
+									times={
+										rythmsOverride.isActive ? rythmsOverride.value : patch.times
+									}
+									noteIndexes={patch.noteIndexes}
+									octaveShifts={patch.octaveShifts}
+									transpositions={
+										transpositionsOverride.isActive
+											? transpositionsOverride.value
+													.map((item) => parseFloat(item.trim()))
+													.filter((item) => !isNaN(item))
+											: patch.transpositions
+									}
+									harmonizations={patch.harmonizations}
+									rootNotes={
+										rootNotesOverride.isActive
+											? rootNotesOverride.value
+											: patch.rootNotes
+									}
+									bpm={patch.bpm}
+									// Optionally, pass updatePatchProperty as a prop if you want to allow BendablePatch itself to update its properties
+								/>
+							))}
+						</div>
+					))}
+					{/* {bendablePatches.map((patch, index) => (
+						<BendablePatch
+							key={index}
+							title={patch.title}
+							times={
+								rythmsOverride.isActive ? rythmsOverride.value : patch.times
+							}
+							noteIndexes={patch.noteIndexes}
+							octaveShifts={patch.octaveShifts}
+							transpositions={
+								transpositionsOverride.isActive
+									? transpositionsOverride.value
+											.map((item) => parseFloat(item.trim()))
+											.filter((item) => !isNaN(item))
+									: patch.transpositions
+							}
+							harmonizations={patch.harmonizations}
+							rootNotes={
+								rootNotesOverride.isActive
+									? rootNotesOverride.value
+									: patch.rootNotes
+							}
+							bpm={patch.bpm}
+							// Optionally, pass updatePatchProperty as a prop if you want to allow BendablePatch itself to update its properties
+						/>
+					))} */}
+				</div>
+				<h1>Logic controls</h1>
 				<LogicController />
 			</header>
 		</div>

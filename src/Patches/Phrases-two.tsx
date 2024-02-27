@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Motif from "../motif/Motif";
-import { Loop, Part, Time, Transport } from "tone";
+import { Time, Transport } from "tone";
 import {
 	getRandomPatterns,
 	getRandomValues,
@@ -10,9 +10,9 @@ import {
 import Phrase from "../motif/Phrase";
 import { Scale, ScaleType } from "tonal";
 
-const Phrases: React.FC = () => {
+const PhrasesTwo: React.FC = () => {
 	useEffect(() => {
-		Transport.bpm.value = 60;
+		Transport.bpm.value = 120;
 		console.log(ScaleType.get("messiaen's mode #2"));
 		console.log(Scale.get("messiaen's mode #2"));
 		console.log("All scales: ", ScaleType.all());
@@ -28,18 +28,23 @@ const Phrases: React.FC = () => {
 				{
 					time: 0,
 					//chord: ["Eb3", "G4", "Bb4", "D5"],
-					chord: "Ebmaj7",
+					chord: "Dm",
 					key: "C whole-half diminished",
 				},
 				{
 					time: "1:0",
-					chord: "Cmaj7",
+					chord: "Am",
 					key: "C whole-half diminished",
 				},
 				{
 					time: "3:0",
-					chord: "Dmaj7",
-					key: "D major",
+					chord: "G",
+					key: "C whole-half diminished",
+				},
+				{
+					time: "4:0",
+					chord: "C",
+					key: "C whole-half diminished",
 				},
 				/* {
 					time: "2:0",
@@ -66,16 +71,21 @@ const Phrases: React.FC = () => {
 		const motifFour = createMotif(rootNotes, 4);
 		const motifFive = createMotif(rootNotes, 5);
 		//motifTwo.harmonizations = [[0]];
-		motifTwo.transposition = 15;
-		motifThree.transposition = 19;
+		motifTwo.transposition = -10;
+		//motifThree.transposition = 19;
 		motifFour.transposition = -7;
 		motifFive.transposition = -12;
+
+		/* motifTwo.position = Time("0:2").toSeconds();
+		motifThree.position = Time("1:2").toSeconds();
+		motifFour.position = Time("0:3").toSeconds();
+		motifFive.position = Time("1:4").toSeconds(); */
 
 		phrase.add(motifOne);
 		phrase.add(motifTwo);
 		phrase.add(motifThree);
-		phrase.add(motifFour);
-		phrase.add(motifFive);
+		/*phrase.add(motifFour);
+		phrase.add(motifFive); */
 		phrase.start();
 		//motifOne.start();
 	};
@@ -85,63 +95,48 @@ const Phrases: React.FC = () => {
 			? times
 			: getRandomValues(30, ["2n", "2n", "2n.", "1m", "4n"], [1.5, 1]);
 
-		const pattern = getRandomPatterns(20, [
+		const pattern = getRandomPatterns(4, [
 			{
-				times: ["4n", "4n", "4n", "4n.", "8n"],
-				noteIndexes: [0, 1, 2, 3, 4],
-				transpositions: [0, 0, 0, 0, 0],
+				times: [
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+					"16n",
+				],
+				noteIndexes: [0, 0, 0, 0, 0],
+				transpositions: [0, 1, 2, 3, 4, 0, 0, 1, 0, 0],
 			},
+		]);
+
+		const patternTwo = getRandomPatterns(4, [
 			{
-				times: ["4n", "4n", "4n"],
-				noteIndexes: [3, 2, 0],
-				transpositions: [0, 0, 0],
+				times: ["2n", "2n", "2n", "2n"],
+				noteIndexes: [0, 1, 2, 1, 2, 1, 0, 1, 2, 2, 2, 0],
+				transpositions: [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
 			},
-			/* {
-				times: ["8n", "8n", "8n", "8n", "8n"],
-				noteIndexes: [-1, 1, 4, 3, 2],
-				transpositions: [0, -1, 0, -1, 0],
-			}, */
-			/* {
-				times: ["8n", "8n", "8n", "8n", "8n"],
-				noteIndexes: [-1, 3, 3, 2, 2],
-				transpositions: [0, 0, 0, 0, 0],
-			}, */
-			/* {
-				times: ["8n", "8n", "8n", "8n"],
-				noteIndexes: [1, 1, 1, 1],
-				transpositions: [0, 0, 0, 0],
-			},
-			{
-				times: ["8n", "8n", "8n", "8n"],
-				noteIndexes: [3, 2, 2, 3],
-				transpositions: [0, 0, 0, 0],
-			}, */
-			/* {
-				times: ["8n", "8n", "8n"],
-				noteIndexes: [1, 1, 1],
-				transpositions: [0, 0, 0],
-			}, */
 		]);
 		console.log("The pattern is: ", pattern);
-
 		const motif = new Motif({
+			times: pattern.times.concat(patternTwo.times),
+			noteIndexes: pattern.noteIndexes.concat(patternTwo.noteIndexes),
+			transpositions: pattern.transpositions.concat(patternTwo.transpositions),
+			midi: { channel: channel },
+		});
+
+		/* const motif = new Motif({
 			times: pattern.times,
 			noteIndexes: pattern.noteIndexes,
 			transpositions: pattern.transpositions,
-			/* harmonizations: [
-				[0, -7],
-				[0, -7],
-				[0, -7],
-				[0, -7],
-				[0, -6],
-				[0, -5],
-				[0, -4],
-				[0, -3],
-				[0, -2],
-				[0, -1],
-			], */
 			midi: { channel: channel },
-		});
+		}); */
 		motif.setNoteNames(notes);
 		motif.loop = true;
 		/* motif.octaveShifts = getRandomValues(24, [0, 1, -1], [1, 0.5]); */
@@ -159,4 +154,4 @@ const Phrases: React.FC = () => {
 	);
 };
 
-export default Phrases;
+export default PhrasesTwo;

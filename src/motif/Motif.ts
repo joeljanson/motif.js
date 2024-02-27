@@ -1,4 +1,4 @@
-import { Time } from "tone";
+import { Time, isString } from "tone";
 import { Frequency, Part, Transport, now } from "tone";
 import MidiHandler from "../midi-handling/MidiHandler";
 import Generator from "./Generator";
@@ -26,6 +26,7 @@ export type MotifOptions = {
 
 export type MotifPartOptions = {
 	time: number;
+	isRest: boolean;
 	duration: number;
 	index: number;
 	velocity: number;
@@ -89,11 +90,20 @@ class Motif {
 				{ length },
 				(_, index) => {
 					const time = startOffset;
-					const duration = Time(this._motif.times[index]).toSeconds();
+					let durationTime = this._motif.times[index];
+					let isRest = false;
+					if (isString(durationTime)) {
+						if (durationTime.includes("r")) {
+							isRest = true;
+							durationTime = durationTime.replace("r", "");
+						}
+					}
+					const duration = Time(durationTime).toSeconds();
 					startOffset += duration;
 					return {
 						time: time,
 						duration: duration,
+						isRest: isRest,
 						index: index,
 						velocity:
 							this._motif.velocities[index % this._motif.velocities.length],
@@ -312,6 +322,7 @@ class Motif {
 
 	set times(newTimes: Array<number | string>) {
 		this._motif.times = newTimes;
+		console.log("sets the new times");
 		this.updatePart();
 	}
 
@@ -355,13 +366,15 @@ class Motif {
 			const lookAhead = 0.1 + (time - Transport.now());
 			const notesToPlay = this.notesToPlayAtIndex[note.index];
 
-			midiHandler.playNotes({
-				notes: notesToPlay,
-				time: lookAhead,
-				duration: note.duration,
-				velocity: note.velocity,
-				channel: this._motif.midi?.channel ?? 1,
-			});
+			if (!note.isRest) {
+				midiHandler.playNotes({
+					notes: notesToPlay,
+					time: lookAhead,
+					duration: note.duration,
+					velocity: note.velocity,
+					channel: this._motif.midi?.channel ?? 1,
+				});
+			}
 			// console.log("Playing with velocity: ", 0.5);
 		};
 

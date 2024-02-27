@@ -112,3 +112,78 @@ export function repeatValues(length: number, values: string[]): string[] {
 	const repeatedValues = Array.from({ length }, () => values).flat();
 	return repeatedValues;
 }
+
+export function getUniqueRandomValues<T>(
+	length: number,
+	values: (T | T[])[],
+	weights?: number[]
+): T[] {
+	let adjustedWeights: number[];
+	let lastValueIndex: number | null = null; // Variable to track the index of the last value added
+
+	if (weights && values.length !== weights.length) {
+		adjustedWeights = interpolateWeights(weights, values.length);
+	} else if (weights) {
+		adjustedWeights = weights;
+	} else {
+		adjustedWeights = new Array(values.length).fill(1);
+	}
+
+	const result: T[] = [];
+	const originalWeights = [...adjustedWeights]; // Clone original weights to restore later
+
+	for (let i = 0; i < length; i++) {
+		if (lastValueIndex !== null && values.length > 1) {
+			// Ensure the last selected value cannot be chosen again
+			adjustedWeights[lastValueIndex] = 0;
+		}
+
+		let totalWeight = adjustedWeights.reduce((acc, weight) => acc + weight, 0);
+		let randomNum = Math.random() * totalWeight;
+
+		for (let j = 0; j < adjustedWeights.length; j++) {
+			randomNum -= adjustedWeights[j];
+			if (randomNum <= 0) {
+				const value = values[j];
+				if (Array.isArray(value)) {
+					result.push(...(value as T[]));
+				} else {
+					result.push(value as T);
+				}
+				lastValueIndex = j; // Update the lastValueIndex with the current index
+				adjustedWeights = [...originalWeights]; // Restore original weights for next iteration
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+export function getSlidingRange(
+	count: number,
+	start: number,
+	end: number
+): number[] {
+	if (count <= 0) {
+		throw new Error("Invalid argument: count must be positive.");
+	}
+
+	// Calculate absolute difference and handle zero difference
+	const absDiff = Math.abs(end - start);
+	if (absDiff === 0) {
+		return Array(count).fill(start);
+	}
+
+	const step = absDiff / (count - 1);
+	const result: number[] = [];
+
+	// Use sign based on start and end values
+	const sign = start < end ? 1 : -1;
+
+	for (let i = 0; i < count; i++) {
+		result.push(start + i * step * sign);
+	}
+
+	return result;
+}

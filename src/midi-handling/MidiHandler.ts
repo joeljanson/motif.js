@@ -55,7 +55,7 @@ class MidiHandler {
 						inRangeNote,
 						{
 							time: "+" + midiInfo.time * 1000,
-							duration: midiInfo.duration * 990,
+							duration: midiInfo.duration * 900,
 							attack: midiInfo.velocity * this.velocityFactor,
 						}
 					);
