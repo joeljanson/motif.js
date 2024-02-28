@@ -3,6 +3,7 @@ import "./App.css";
 import LogicController from "./LogicController";
 import {
 	getRandomValues,
+	getRandomizedVoicings,
 	getSlidingRange,
 	getUniqueRandomValues,
 	repeatValues,
@@ -14,6 +15,7 @@ import RythmsOverride from "./RythmsOverride";
 import {
 	initialHarmonyPatches,
 	initialMelodyPatches,
+	initialMovements,
 	initialTexturePatches,
 	initialotherPatches,
 } from "./Patches";
@@ -38,6 +40,10 @@ const patchCategories: PatchCategories[] = [
 		patches: initialHarmonyPatches,
 	},
 	{
+		title: "Movements",
+		patches: initialMovements,
+	},
+	{
 		title: "Melodies",
 		patches: initialMelodyPatches,
 	},
@@ -52,6 +58,9 @@ const patchCategories: PatchCategories[] = [
 ];
 
 function App() {
+	useEffect(() => {
+		console.log(getRandomizedVoicings([0, 4, 7], 10, 3));
+	});
 	/* const [bendablePatches, setBendablePatches] =
 		useState<BendablePatchProps[]>(initialPatches); */
 	const [rootNotesOverride, setRootNotesOverride] = useState<{

@@ -34,11 +34,11 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 }) => {
 	useEffect(() => {
 		Transport.bpm.value = bpm;
-		console.log("rootnotes", rootNotes);
+		/* console.log("rootnotes", rootNotes);
 		console.log("bpm", bpm);
 		console.log("noteIndexes", noteIndexes);
 		console.log("transpositions", transpositions);
-		console.log("Times: ", times);
+		console.log("Times: ", times); */
 		if (motifRef.current) {
 			motifRef.current.transpositions = transpositions;
 			motifRef.current.noteIndexes = noteIndexes;

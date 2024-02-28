@@ -108,9 +108,18 @@ export function getRandomPatterns(
 	return result;
 }
 
-export function repeatValues(length: number, values: string[]): string[] {
-	const repeatedValues = Array.from({ length }, () => values).flat();
-	return repeatedValues;
+export function repeatValues<T>(length: number, values: (T | T[])[]): T[] {
+	const repeatedValues: T[] = [];
+	if (Array.isArray(values)) {
+		// values is an array, use flat()
+		for (const value of values) {
+			repeatedValues.push(...Array(length).fill(value));
+		}
+		return repeatedValues;
+	} else {
+		// values is a single value, repeat it length times
+		return Array(length).fill(values);
+	}
 }
 
 export function getUniqueRandomValues<T>(
@@ -186,4 +195,43 @@ export function getSlidingRange(
 	}
 
 	return result;
+}
+
+export function getRandomizedVoicings(
+	chord: number[],
+	n: number,
+	noteCount: number,
+	lowerRange: number = -2,
+	upperRange: number = 2
+): number[][] {
+	const uniqueVoicings = new Set<string>(); // Use a Set to ensure all voicings are unique
+	const voicings: number[][] = []; // This will store the final array of voicings
+
+	while (voicings.length < n) {
+		let voicing: number[] = [];
+		for (let i = 0; i < noteCount; i++) {
+			// Select a random note from the chord
+			const note = chord[Math.floor(Math.random() * chord.length)];
+			// Randomly choose an octave shift within the specified range and apply it
+			const octaveShift =
+				Math.floor(Math.random() * (upperRange - lowerRange + 1) + lowerRange) *
+				12;
+			const transposedNote = note + octaveShift;
+			voicing.push(transposedNote);
+		}
+
+		// Sort the voicing for consistency
+		voicing.sort((a, b) => a - b);
+
+		// Convert the voicing to a string for uniqueness checking
+		const voicingString = voicing.join(",");
+
+		// Check for uniqueness and add if it's a new voicing
+		if (!uniqueVoicings.has(voicingString)) {
+			uniqueVoicings.add(voicingString);
+			voicings.push(voicing);
+		}
+	}
+
+	return voicings;
 }
