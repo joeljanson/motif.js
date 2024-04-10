@@ -66,7 +66,7 @@ class Motif {
 			octaveShifts: [0],
 			notesToPlayAtIndex: [[0]],
 			harmonizations: [[0]],
-			velocities: [0.5],
+			velocities: [0.8],
 			length: undefined,
 			notes: new Notes(["C4"]),
 			midi: {
@@ -320,9 +320,12 @@ class Motif {
 		return this._motif.times;
 	}
 
+	get velocities() {
+		return this._motif.velocities;
+	}
+
 	set times(newTimes: Array<number | string>) {
 		this._motif.times = newTimes;
-		console.log("sets the new times");
 		this.updatePart();
 	}
 
@@ -338,6 +341,11 @@ class Motif {
 
 	set octaveShifts(newOctaveShifts: Array<number>) {
 		this._motif.octaveShifts = newOctaveShifts;
+		this.updatePart();
+	}
+
+	set velocities(newVelocites: Array<number>) {
+		this._motif.velocities = newVelocites;
 		this.updatePart();
 	}
 
@@ -375,7 +383,6 @@ class Motif {
 					channel: this._motif.midi?.channel ?? 1,
 				});
 			}
-			// console.log("Playing with velocity: ", 0.5);
 		};
 
 		this._part!.start(

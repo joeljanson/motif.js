@@ -14,6 +14,7 @@ import RootNotesOverride from "./RootNotesOverride";
 import RythmsOverride from "./RythmsOverride";
 import {
 	initialHarmonyPatches,
+	initialIrregularRythms,
 	initialMelodyPatches,
 	initialMovements,
 	initialTexturePatches,
@@ -50,6 +51,10 @@ const patchCategories: PatchCategories[] = [
 	{
 		title: "Textures",
 		patches: initialTexturePatches,
+	},
+	{
+		title: "Irregular measures",
+		patches: initialIrregularRythms,
 	},
 	{
 		title: "Other",
@@ -144,6 +149,7 @@ function App() {
 											: patch.transpositions
 									}
 									harmonizations={patch.harmonizations}
+									velocities={patch.velocities}
 									rootNotes={
 										rootNotesOverride.isActive
 											? rootNotesOverride.value

@@ -1,5 +1,6 @@
 import { BendablePatchProps } from "./Patches/BendablePatch";
 import {
+	getChromaticScale,
 	getRandomValues,
 	getRandomizedVoicings,
 	getSlidingRange,
@@ -18,13 +19,18 @@ import {
 
 export const initialHarmonyPatches: BendablePatchProps[] = [
 	{
-		title: "Random voicings of a major chord",
+		title: "Movement",
 		times: getRandomValues(8, [["1m"]], [1.5, 1]),
-		noteIndexes: getUniqueRandomValues(8, [0]),
+		noteIndexes: getUniqueRandomValues(8, [0, 1, 2, 3, 4, 5]),
 		transpositions: [0], //getUniqueRandomValues(8, [0, 7, -7, -4, 4]),
-		harmonizations: getRandomizedVoicings([-12, 2, 11, 4, 7], 5, 5, -1, 1),
-		rootNotes: ["Eb4"],
-		bpm: 120,
+		harmonizations: [
+			[-12, -7, 0, 7, 16, 14],
+			[-6, -2, 0, 4, 9, 3],
+			[-12, 0, 4, 7],
+		],
+		rootNotes: ["C4", "G3", "D4", "A4", "E3", "B3"],
+		octaveShifts: getSlidingRange(24, 0, -2),
+		bpm: 60,
 	},
 	{
 		title: "Stacked fifths",
@@ -223,8 +229,74 @@ export const initialMelodyPatches: BendablePatchProps[] = [
 			...getSlidingRange(40, 0, -1.25),
 			...getSlidingRange(40, -1.25, 0),
 		],
-		rootNotes: ["Eb4"],
+		rootNotes: getChromaticScale(),
 		bpm: 120,
+	},
+	{
+		title: "Melody #4",
+		times: getRandomValues(80, [["2n", "2n", "2n", "2n", "1m"]], [1.5, 1]),
+		noteIndexes: getUniqueRandomValues(
+			80,
+			[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+		),
+		transpositions: getUniqueRandomValues(8, [0]),
+		harmonizations: [[0]],
+		octaveShifts: [0],
+		rootNotes: getChromaticScale(),
+		bpm: 50,
+	},
+	{
+		title: "Cello melody",
+		times: [
+			...repeatValues(6, ["2n"]),
+			...["4n.r"],
+			...repeatValues(10, ["4n"]),
+			...repeatValues(9, ["2n"]),
+			...["4n", "4n"],
+			...["2nr", "2nr"],
+			...repeatValues(12, ["4n"]),
+			...["2n", "2n"],
+			...["2m"],
+		],
+		noteIndexes: [
+			0, 1, 2, 3, 4, 1, -1, 5, 6, 1, 5, 6, 1, 3, 4, 1, 1, 2, 3, 4, 1, 2, 3, 7,
+			2, 4, 3, 8, -1, -1, 5, 6, 1, 5, 4, 1, 3, 4, 9, 8, 2, 3, 4, 0,
+		],
+		transpositions: [0],
+		harmonizations: [
+			[0, 7],
+			[0, 8],
+			[0, 4, 7],
+		],
+		octaveShifts: [
+			0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		],
+		rootNotes: ["Eb2", "C2", "G2", "Ab2", "Bb2", "D3", "Eb3", "F2", "A2", "B2"],
+		tonalkey: ["Eb2", "C2", "G2", "Ab2", "Bb2", "D3", "Eb3", "F2", "A2", "B2"],
+		bpm: 56,
+	},
+	{
+		title: "Random melody",
+		times: [
+			...repeatValues(2, ["2n"]),
+			...["8n", "2n", "4n.r"],
+			...["8n", "4n.", "8n", "4n."],
+			...["4n", "4n", "8n", "4n."],
+			...["4n.", "8n", "2n"],
+		],
+		noteIndexes: getUniqueRandomValues(40, [
+			[0, 1],
+			[2, 3],
+			[3, 4, 5],
+			[5, 6],
+		]),
+		transpositions: [0],
+		harmonizations: [[0]],
+		octaveShifts: [0],
+		rootNotes: ["Eb2", "C2", "G2", "Ab2", "Bb2", "D3", "Eb3", "F2", "A2", "B2"],
+		tonalkey: ["Eb2", "C2", "G2", "Ab2", "Bb2", "D3", "Eb3", "F2", "A2", "B2"],
+		bpm: 56,
 	},
 	// Add more instances as needed
 ];
@@ -296,6 +368,29 @@ export const initialTexturePatches: BendablePatchProps[] = [
 		harmonizations: [[0]],
 		rootNotes: ["Eb5"],
 		bpm: 120,
+	},
+];
+
+///////// Irregular meters -------------------------------*************************
+/*
+ *
+ *
+ *
+ *
+ *
+ */
+
+export const initialIrregularRythms: BendablePatchProps[] = [
+	{
+		title: "5/8",
+		times: repeatValues(4, ["8n", "8n", "8n", "8n", "8n"]),
+		noteIndexes: [0],
+		transpositions: getUniqueRandomValues(12, [0, 0]),
+		harmonizations: [[0]],
+		velocities: [1, 0.85, 0.85, 1, 0.8],
+		octaveShifts: getSlidingRange(7, 0, -1),
+		rootNotes: ["G3"],
+		bpm: 108,
 	},
 ];
 

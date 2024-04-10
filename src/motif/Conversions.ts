@@ -19,7 +19,9 @@ export function pitchToPitchClassNumber(pitch: string): number {
 		B: 11,
 	};
 
-	const note = pitch.match(/[A-G](#|b)?/)?.[0] || "";
+	const noteWithoutOctave: string = pitch.replace(/\d+/g, "");
+
+	const note = noteWithoutOctave.match(/[A-G](#|b)?/)?.[0] || "";
 	const pitchClassNumber = noteToPitchClass[note];
 
 	return pitchClassNumber;

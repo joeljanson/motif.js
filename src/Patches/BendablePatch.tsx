@@ -19,6 +19,8 @@ export interface BendablePatchProps {
 	harmonizations: number[][];
 	octaveShifts?: number[] | undefined;
 	rootNotes: string[];
+	tonalkey?: string[];
+	velocities?: number[];
 	bpm: number;
 }
 
@@ -29,7 +31,9 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 	transpositions,
 	harmonizations,
 	octaveShifts = [0],
+	velocities = [0.5],
 	rootNotes,
+	tonalkey = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
 	bpm,
 }) => {
 	useEffect(() => {
@@ -44,6 +48,7 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 			motifRef.current.noteIndexes = noteIndexes;
 			motifRef.current.times = times;
 			motifRef.current.setNoteNames(rootNotes);
+			motifRef.current.setKeyWithStrings(tonalkey);
 		}
 	}, [bpm, transpositions, rootNotes, times]);
 
@@ -55,6 +60,18 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 
 	// Function to create and/or toggle the motif play state
 	const handleClick = () => {
+		Transport.bpm.value = bpm;
+
+		/*
+		 * Right here would be a good opportunity to create multiple motifs. So if the content of the times array for example, also is an array [["2n", "2n"], ["4n", "4n"]]
+		 * That means two motifs should be created and started etc. (and also played on the next midi-channel) Thus being able to create polyphonic material and patches
+		 * using the same parameters for some of the properties but different for for example times or noteindexes. Interesting!
+		 *
+		 *
+		 *
+		 *
+		 */
+
 		// Only create the motif if it hasn't been created yet
 		if (!motifRef.current) {
 			motifRef.current = createMotif(
@@ -64,6 +81,7 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 				noteIndexes,
 				transpositions,
 				octaveShifts,
+				velocities,
 				harmonizations
 			);
 		}
@@ -86,6 +104,7 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 		noteIndexes: number[],
 		transpositions: number[],
 		octaveShifts: number[],
+		velocities: number[],
 		harmonizations: number[][]
 	) => {
 		/* const pattern = getRandomPatterns(1, [
@@ -101,9 +120,10 @@ const BendablePatch: React.FC<BendablePatchProps> = ({
 
 		motif.setNoteNames(notes);
 		motif.loop = false;
+		motif.velocities = velocities;
 		motif.harmonizations = harmonizations;
 		motif.octaveShifts = octaveShifts;
-		console.log(motif);
+		console.log("Motif is: ", motif);
 		// Customize harmonizations and other properties as needed
 		return motif;
 	};
